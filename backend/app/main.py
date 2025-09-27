@@ -40,20 +40,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Set all CORS enabled origins
-if settings.BACKEND_CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            # See https://github.com/pydantic/pydantic/issues/7186
-            # for reason of using rstrip
-            str(origin).rstrip("/")
-            for origin in settings.BACKEND_CORS_ORIGINS
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
+# APENAS ESTE MIDDLEWARE CORS - Versão flexível para desenvolvimento
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite todas as origens
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos os métodos
+    allow_headers=["*"],  # Permite todos os headers
+)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
