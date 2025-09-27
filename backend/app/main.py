@@ -1,10 +1,8 @@
 from contextlib import asynccontextmanager
-import os
 
 from beanie import init_beanie
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from .auth.auth import get_hashed_password
@@ -15,18 +13,14 @@ from .routers.api import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Setup MongoDB Atlas com TLS
-    app.state.client = AsyncIOMotorClient(
-        settings.MONGO_HOST,
-        tls=True,
-        tlsCAFile=certifi.where()
-    )
+    # Setup mongoDB
+    app.state.client = AsyncIOMotorClient(settings.MONGO_HOST)
     await init_beanie(
-        database=app.state.client[settings.MONGO_DB],
-        document_models=[User],
+        database=app.state.client[settings.MONGO_DB], 
+        document_models=[User]
+        
     )
 
-    # Criação do superusuário se não existir
     user = await User.find_one({"email": settings.FIRST_SUPERUSER})
     if not user:
         user = User(
@@ -36,6 +30,7 @@ async def lifespan(app: FastAPI):
         )
         await user.create()
 
+    # yield app
     yield
 
 
@@ -45,21 +40,21 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Middleware CORS - flexível
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # já cobre tudo
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Set all CORS enabled origins
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            # See https://github.com/pydantic/pydantic/issues/7186
+            # for reason of using rstrip
+            str(origin).rstrip("/")
+            for origin in settings.BACKEND_CORS_ORIGINS
+        ],
+        allow_origins=["*"],  
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-# Rotas
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
-
-
-# --- Uvicorn entrypoint para Render ---
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Render define PORT
-    import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
