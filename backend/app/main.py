@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import os
 
 from beanie import init_beanie
 from fastapi import FastAPI
@@ -14,17 +15,18 @@ from .routers.api import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Setup mongoDB
+    # Setup MongoDB Atlas com TLS
     app.state.client = AsyncIOMotorClient(
         settings.MONGO_HOST,
         tls=True,
         tlsCAFile=certifi.where()
     )
     await init_beanie(
-        database=app.state.client[settings.MONGO_DB], 
+        database=app.state.client[settings.MONGO_DB],
         document_models=[User],
     )
 
+    # Criação do superusuário se não existir
     user = await User.find_one({"email": settings.FIRST_SUPERUSER})
     if not user:
         user = User(
@@ -34,7 +36,6 @@ async def lifespan(app: FastAPI):
         )
         await user.create()
 
-    # yield app
     yield
 
 
@@ -44,14 +45,21 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
-# APENAS ESTE MIDDLEWARE CORS - Versão flexível para desenvolvimento
+# Middleware CORS - flexível
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite todas as origens
+    allow_origins=["*"],  # já cobre tudo
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos os métodos
-    allow_headers=["*"],  # Permite todos os headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+# Rotas
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+# --- Uvicorn entrypoint para Render ---
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Render define PORT
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
