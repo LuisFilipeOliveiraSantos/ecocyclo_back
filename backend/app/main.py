@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from beanie import init_beanie
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from .auth.auth import get_hashed_password
@@ -14,11 +15,14 @@ from .routers.api import api_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup mongoDB
-    app.state.client = AsyncIOMotorClient(settings.MONGO_HOST)
+    app.state.client = AsyncIOMotorClient(
+        settings.MONGO_HOST,
+        tls=True,
+        tlsCAFile=certifi.where()
+    )
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
-        document_models=[User]
-        
+        document_models=[User],
     )
 
     user = await User.find_one({"email": settings.FIRST_SUPERUSER})
