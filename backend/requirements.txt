@@ -2,7 +2,7 @@
 annotated-types==0.7.0
 anyio==4.9.0
 attrs==25.3.0
-bcrypt==3.2.2
+bcrypt==4.1.2
 beanie==2.0.0
 blinker==1.9.0
 cachetools==5.5.2
@@ -95,5 +95,6 @@ watchdog==6.0.0
 watchfiles==1.0.5
 websockets==15.0.1
 certifi==2025.8.3
+
 
 
