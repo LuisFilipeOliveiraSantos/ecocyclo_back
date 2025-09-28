@@ -68,10 +68,19 @@ password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def get_hashed_password(password: str) -> str:
-    return password_context.hash(password[:72])
+    if isinstance(password, str):
+        password = password.encode('utf-8')
+    if len(password) > 72:
+        password = password[:72]
+    return password_context.hash(password)
 
 
+# Verificação da senha com truncamento de 72 bytes
 def verify_password(password: str, hashed_pass: str) -> bool:
+    if isinstance(password, str):
+        password = password.encode('utf-8')
+    if len(password) > 72:
+        password = password[:72]
     return password_context.verify(password, hashed_pass)
 
 
