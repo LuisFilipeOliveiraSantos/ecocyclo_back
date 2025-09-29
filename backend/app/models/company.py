@@ -29,10 +29,9 @@ class Company(Document):
     referencia: str | None = None
     
     
-    horario_funcionamento: str | None = None
     
-    materiais_aceitos: List[str] | None = None  
-    capacidade_max: int | None = None 
+    
+
     
     # Status e avaliação
     is_active: bool = True
@@ -47,38 +46,7 @@ class Company(Document):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
-    @field_validator('materiais_aceitos')
-    @classmethod
-    def validate_materiais_aceitos(cls, v, info):
-        """Valida que apenas empresas coletoras podem ter materiais aceitos"""
-        if v is not None and info.data.get('company_type') != CompanyType.EMPRESA_COLETORA:
-            raise ValueError('Apenas empresas coletoras podem ter materiais aceitos')
-        return v
-    
-    @field_validator('capacidade_max')
-    @classmethod  
-    def validate_capacidade_max(cls, v, info):
-        """Valida que apenas empresas coletoras podem ter capacidade máxima"""
-        if v is not None and info.data.get('company_type') != CompanyType.EMPRESA_COLETORA:
-            raise ValueError('Apenas empresas coletoras podem ter capacidade máxima')
-        return v
-    
-    @field_validator('horario_funcionamento')
-    @classmethod
-    def validate_horario_funcionamento(cls, v, info):
-        """Valida que apenas empresas coletoras podem ter horário de funcionamento"""
-        if v is not None and info.data.get('company_type') != CompanyType.EMPRESA_COLETORA:
-            raise ValueError('Apenas empresas coletoras podem ter horário de funcionamento')
-        return v
-  
-    
-    def is_coletora(self) -> bool:
-        """Retorna True se a empresa é coletora"""
-        return self.company_type == CompanyType.EMPRESA_COLETORA
-    
-    def is_descartante(self) -> bool:
-        """Retorna True se a empresa é descartante"""
-        return self.company_type == CompanyType.EMPRESA_DESCARTANTE
+   
     
     def can_offer_rewards(self) -> bool:
         """Retorna True se a empresa pode oferecer recompensas"""
