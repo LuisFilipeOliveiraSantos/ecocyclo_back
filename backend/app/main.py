@@ -9,7 +9,7 @@ from .auth.auth import get_hashed_password
 from .config.config import settings
 from .models.users import User
 from .routers.api import api_router
-
+from .models.company import Company
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     app.state.client = AsyncIOMotorClient(settings.MONGO_HOST)
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
-        document_models=[User]
+        document_models=[User, Company]
         
     )
 
