@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
         
     )
     # Seed initial admin company
-    # await seed_admin.create_first_admin()
+    await seed_admin.create_first_admin()
 
     # user = await User.find_one({"email": settings.FIRST_SUPERUSER})
     # if not user:
