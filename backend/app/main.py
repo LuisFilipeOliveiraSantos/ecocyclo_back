@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
+import certifi
 from .auth.auth import get_hashed_password
 from .config.config import settings
 from .models.users import User
@@ -14,8 +15,10 @@ from .seeds import seed_admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Setup mongoDB
-    app.state.client = AsyncIOMotorClient(settings.MONGO_HOST)
+    # Setup MongoDB
+    app.state.client = AsyncIOMotorClient(
+        settings.MONGO_HOST, tls=True, tlsCAFile=certifi.where()
+    )
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
         document_models=[User, Company]
@@ -33,7 +36,6 @@ async def lifespan(app: FastAPI):
     #     )
     #     await user.create()
 
-    # yield app
     yield
 
 
@@ -43,22 +45,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Set all CORS enabled origins
+# Configura CORS
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            # See https://github.com/pydantic/pydantic/issues/7186
-            # for reason of using rstrip
-            str(origin).rstrip("/")
-            for origin in settings.BACKEND_CORS_ORIGINS
-        ],
+        allow_origins=[str(origin).rstrip("/") for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-
+# Inclui rotas
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
