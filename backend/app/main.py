@@ -10,6 +10,7 @@ from .config.config import settings
 from .models.users import User
 from .routers.api import api_router
 from .models.company import Company
+from .seeds import seed_admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,15 +21,17 @@ async def lifespan(app: FastAPI):
         document_models=[User, Company]
         
     )
+    # Seed initial admin company
+    await seed_admin.create_first_admin()
 
-    user = await User.find_one({"email": settings.FIRST_SUPERUSER})
-    if not user:
-        user = User(
-            email=settings.FIRST_SUPERUSER,
-            hashed_password=get_hashed_password(settings.FIRST_SUPERUSER_PASSWORD),
-            is_superuser=True,
-        )
-        await user.create()
+    # user = await User.find_one({"email": settings.FIRST_SUPERUSER})
+    # if not user:
+    #     user = User(
+    #         email=settings.FIRST_SUPERUSER,
+    #         hashed_password=get_hashed_password(settings.FIRST_SUPERUSER_PASSWORD),
+    #         is_superuser=True,
+    #     )
+    #     await user.create()
 
     # yield app
     yield
@@ -57,3 +60,14 @@ if settings.BACKEND_CORS_ORIGINS:
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+# -----------------------------
+# Rodar localmente ou no Render
+# -----------------------------
+if __name__ == "__main__":
+    import os
+    import uvicorn
+
+    port = int(os.environ.get("PORT", 8000))  # Render fornece a porta dinamicamente
+    uvicorn.run(app, host="0.0.0.0", port=port)

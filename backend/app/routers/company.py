@@ -15,6 +15,8 @@ from app.auth.auth_company import (
 
 router = APIRouter()
 
+
+
 @router.post("", response_model=CompanyOut)
 async def register_company(company: CompanyCreate):
     """
@@ -61,12 +63,16 @@ async def get_companies(
     offset: int = 0,
     admin_company: models.Company = Depends(get_current_active_admin_company),
 ):
-    companies = await models.Company.find_all().skip(offset).limit(limit).to_list()
+    companies = await models.Company.find({"is_admin":False}).skip(offset).limit(limit).to_list()
     return companies
+
+
 
 @router.get("/me", response_model=CompanyOut)
 async def get_my_company(current_company: models.Company = Depends(get_current_active_company)):
     return current_company
+
+
 
 @router.patch("/me", response_model=CompanyOut)
 async def update_my_company(
@@ -90,10 +96,14 @@ async def update_my_company(
     except (errors.DuplicateKeyError, RevisionIdWasChanged):
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
 
+
+
 @router.delete("/me", response_model=CompanyOut)
 async def delete_me(current_company: models.Company = Depends(get_current_active_company)):
     await current_company.delete()
     return current_company
+
+
 
 @router.get("/{company_id}", response_model=CompanyOut)
 async def get_company(
@@ -104,6 +114,8 @@ async def get_company(
     if company is None:
         raise HTTPException(status_code=404, detail="Company not found")
     return company
+
+
 
 @router.patch("/{company_id}", response_model=CompanyOut)
 async def update_company(
@@ -127,6 +139,8 @@ async def update_company(
         return updated_company
     except (errors.DuplicateKeyError, RevisionIdWasChanged):
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
+
+
 
 @router.delete("/{company_id}", response_model=CompanyOut)
 async def delete_company(

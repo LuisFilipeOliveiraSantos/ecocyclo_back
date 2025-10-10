@@ -32,6 +32,7 @@ class Company(Document):
     
     # Status e avaliação (valores padrão)
     is_active: bool = True
+    is_admin: bool = False  
     rating_average: float = 0.0
     total_ratings: int = 0
     total_points: int = 0
