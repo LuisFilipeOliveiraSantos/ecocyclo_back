@@ -47,7 +47,7 @@ oauthlib==3.3.1
 osmnx==2.0.5
 packaging==25.0
 pandas==2.3.1
-passlib[bcrypt]==1.7.4
+passlib==1.7.4
 pillow==11.3.0
 protobuf==6.32.1
 psutil==7.0.0
@@ -94,6 +94,7 @@ watchdog==6.0.0
 watchfiles==1.0.5
 websockets==15.0.1
 certifi==2025.8.3
+
 
 
 
