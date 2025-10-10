@@ -19,7 +19,7 @@ async def create_first_admin():
         cnpj="00000000000191",
         email="admin@system.com",
         telefone="999999999",
-        hashed_password=get_hashed_password("40415051200"),  # Verifique se esta senha está correta
+        hashed_password=get_hashed_password("admin"),  # Verifique se esta senha está correta
         company_type="coletora",
         cep="00000-000",
         rua="Admin Street",
