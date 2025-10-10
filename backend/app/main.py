@@ -10,7 +10,8 @@ from .auth.auth import get_hashed_password
 from .config.config import settings
 from .models.users import User
 from .routers.api import api_router
-
+from .models.company import Company
+from .seeds import seed_admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,19 +20,21 @@ async def lifespan(app: FastAPI):
         settings.MONGO_HOST, tls=True, tlsCAFile=certifi.where()
     )
     await init_beanie(
-        database=app.state.client[settings.MONGO_DB],
-        document_models=[User]
+        database=app.state.client[settings.MONGO_DB], 
+        document_models=[User, Company]
+        
     )
+    # Seed initial admin company
+    await seed_admin.create_first_admin()
 
-    # Cria superusuário se não existir
-    user = await User.find_one({"email": settings.FIRST_SUPERUSER})
-    if not user:
-        user = User(
-            email=settings.FIRST_SUPERUSER,
-            hashed_password=get_hashed_password(settings.FIRST_SUPERUSER_PASSWORD),
-            is_superuser=True,
-        )
-        await user.create()
+    # user = await User.find_one({"email": settings.FIRST_SUPERUSER})
+    # if not user:
+    #     user = User(
+    #         email=settings.FIRST_SUPERUSER,
+    #         hashed_password=get_hashed_password(settings.FIRST_SUPERUSER_PASSWORD),
+    #         is_superuser=True,
+    #     )
+    #     await user.create()
 
     yield
 
