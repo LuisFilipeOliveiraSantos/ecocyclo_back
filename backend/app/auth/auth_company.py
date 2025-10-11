@@ -99,7 +99,9 @@ def get_current_active_company(current_company: Company = Depends(get_current_co
     return current_company
 
 def get_current_active_admin_company(current_company: Company = Depends(get_current_company)) -> Company:
-    # Aqui você pode adicionar lógica de admin para companies se necessário
-    if not current_company.is_active:
-        raise HTTPException(status_code=400, detail="The company doesn't have enough privileges")
+    if not current_company.is_active or not current_company.is_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="The company doesn't have enough privileges"
+        )
     return current_company

@@ -7,9 +7,6 @@ from beanie import Document, Indexed
 from pydantic import Field
 
 
-
-
-
 class Achievement(Document):
     """Conquistas/badges que os usuários podem desbloquear"""
     uuid: Annotated[UUID, Field(default_factory=uuid4), Indexed(unique=True)]

@@ -1,10 +1,7 @@
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, status
 from pydantic import BaseModel
-import base64
-import io
-from PIL import Image
-from ..Services.image_recognition import predict_image
+from ..services.image_recognition import predict_image
 
 router = APIRouter()
 

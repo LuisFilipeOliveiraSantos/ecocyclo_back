@@ -82,3 +82,5 @@ class CompanyOut(CompanyBase):
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
+
+

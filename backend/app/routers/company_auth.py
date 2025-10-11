@@ -33,6 +33,8 @@ async def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -
     access_token = create_access_token_company(company.uuid, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+
 @router.get("/test-token", response_model=CompanyOut)
 async def test_token(current_company: models.Company = Depends(get_current_active_company)):
     """

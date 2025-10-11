@@ -5,33 +5,37 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
+import certifi
 from .auth.auth import get_hashed_password
 from .config.config import settings
 from .models.users import User
 from .routers.api import api_router
 from .models.company import Company
-from .routers import items_recognition
+from .seeds import seed_admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Setup mongoDB
-    app.state.client = AsyncIOMotorClient(settings.MONGO_HOST)
+    # Setup MongoDB
+    app.state.client = AsyncIOMotorClient(
+        settings.MONGO_HOST,
+    )
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
         document_models=[User, Company]
         
     )
+    # Seed initial admin company
+    await seed_admin.create_first_admin()
 
-    user = await User.find_one({"email": settings.FIRST_SUPERUSER})
-    if not user:
-        user = User(
-            email=settings.FIRST_SUPERUSER,
-            hashed_password=get_hashed_password(settings.FIRST_SUPERUSER_PASSWORD),
-            is_superuser=True,
-        )
-        await user.create()
+    # user = await User.find_one({"email": settings.FIRST_SUPERUSER})
+    # if not user:
+    #     user = User(
+    #         email=settings.FIRST_SUPERUSER,
+    #         hashed_password=get_hashed_password(settings.FIRST_SUPERUSER_PASSWORD),
+    #         is_superuser=True,
+    #     )
+    #     await user.create()
 
-    # yield app
     yield
 
 
@@ -41,21 +45,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Set all CORS enabled origins
+# Configura CORS
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            # See https://github.com/pydantic/pydantic/issues/7186
-            # for reason of using rstrip
-            str(origin).rstrip("/")
-            for origin in settings.BACKEND_CORS_ORIGINS
-        ],
+        allow_origins=[str(origin).rstrip("/") for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-
+# Inclui rotas
 app.include_router(api_router, prefix=settings.API_V1_STR)
-app.include_router(items_recognition.router, prefix="/api")
+
+
+
+# -----------------------------
+# Rodar localmente ou no Render
+# -----------------------------
+if __name__ == "__main__":
+    import os
+    import uvicorn
+
+    port = int(os.environ.get("PORT", 8000))  # Render fornece a porta dinamicamente
+    uvicorn.run(app, host="0.0.0.0", port=port)

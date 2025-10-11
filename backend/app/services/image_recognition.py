@@ -1,5 +1,4 @@
 
-import tensorflow as tf
 from ultralytics import YOLO
 from pathlib import Path
 from PIL import Image
