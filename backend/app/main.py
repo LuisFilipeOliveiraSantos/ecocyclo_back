@@ -10,6 +10,7 @@ from .config.config import settings
 from .models.users import User
 from .routers.api import api_router
 from .models.company import Company
+from .routers import items_recognition
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -57,3 +58,4 @@ if settings.BACKEND_CORS_ORIGINS:
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(items_recognition.router, prefix="/api")
