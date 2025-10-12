@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 
-@router.post("", response_model=CompanyOut)
+@router.post("/register", response_model=CompanyOut)
 async def register_company(company: CompanyCreate):
     """
     Register a new company.
@@ -59,7 +59,7 @@ async def register_company(company: CompanyCreate):
     except errors.DuplicateKeyError:
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
 
-@router.get("", response_model=list[CompanyOut])
+@router.get("/", response_model=list[CompanyOut])
 async def get_companies(
     limit: int = 10,
     offset: int = 0,

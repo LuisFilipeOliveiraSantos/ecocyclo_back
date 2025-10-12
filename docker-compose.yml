@@ -83,32 +83,6 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
       - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=8000
 
-  frontend:
-    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
-    env_file:
-      - .env
-    ports:
-      - "5173:5173"
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.development
-      args:
-        FRONTEND_ENV: dev
-    command: npm run dev -- --host
-    develop:
-      watch:
-        - path: ./frontend
-          action: sync
-          target: /app
-          ignore:
-            - ./frontend/node_modules
-            - node_modules
-        - path: ./frontend/package.json
-          action: rebuild
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.rule=PathPrefix(`/`)
-      - traefik.http.services.${STACK_NAME?Variable not set}-frontend.loadbalancer.server.port=5173
 
 volumes:
   app-db-data:

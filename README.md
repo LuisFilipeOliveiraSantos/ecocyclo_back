@@ -1,112 +1,165 @@
-# Fastapi-React-Mongodb-Docker
+# 🌱 Ecocyclo Backend
 
-![Tests](https://github.com/jonasrenault/fastapi-react-mongodb-docker/actions/workflows/test.yml/badge.svg)
-![Build](https://github.com/jonasrenault/fastapi-react-mongodb-docker/actions/workflows/build.yml/badge.svg)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue)](https://www.python.org/)  
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-green)](https://fastapi.tiangolo.com/)  
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-![python_version](https://img.shields.io/badge/Python-%3E=3.12-blue)
 
-This is a template application for a FARM stack. FARM stands for FastAPI, React, MongoDB.
+Backend do projeto **Ecocyclo**, uma aplicação gamificada para incentivar o **descarte correto de lixo eletrônico** e promover a **economia circular**.
 
-## Features
+---
 
-### Clean design with minimal dependencies
+## ✨ Features
 
-[![API docs](frontend/public/farmd-1.png)](https://github.com/jonasrenault/fastapi-react-mongodb-docker)
+- **FastAPI Backend:** APIs para gestão de usuários, pontos de gamificação e registros de descarte.  
+- **Gamificação:** Sistema de pontos e badges para incentivar reciclagem.  
+- **Banco de Dados:** Armazena usuários, registros de descarte e conquistas.  
+- **Docker:** Configuração rápida para desenvolvimento e produção.  
+- **Tools:** Poetry, ruff, black, taskipy (opcional) para desenvolvimento.
 
-### Basic user management with OAuth2 SSO
+---
 
-[![API docs](frontend/public/farmd-2.png)](https://github.com/jonasrenault/fastapi-react-mongodb-docker)
+## 📂 Estrutura do projeto
 
-## Project structure
-
-The project is composed of :
-
-* a backend API server built with FastAPI located in the [backend](backend) dir.
-* a frontend web app build with React and located in the [frontend](frontend) dir.
-
-## Running the application locally for development
-
-To run the application manually in a terminal, see both the [backend](backend/README.md) and [frontend](frontend/README.md)'s READMEs for instructions.
-
-## Running the application with Docker
-
-The project contains Docker configuration files to run the application with Docker compose. Two docker-compose files are provided with configuration for `dev` and for `production` environments. The Docker configuration is largely adapted from Tiangolo's [Full stack FastAPI template](https://github.com/fastapi/full-stack-fastapi-template) project.
-
-### Local development with Docker
-
-The local development file for docker is [docker-compose.yml](./docker-compose.yml).
-
-Start the stack with Docker Compose:
-
-```bash
-docker compose watch
+```text
+ecocyclo_back/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py          # Ponto de entrada da aplicação
+│   │   ├── routers/         # Rotas da API
+│   │   ├── models/          # Modelos de banco de dados
+│   │   ├── schemas/         # Schemas Pydantic
+│   │   ├── services/        # Regras de negócio
+│   │   └── utils/           # Funções auxiliares
+│   │
+│   ├── tests/               # Testes automatizados
+│   ├── requirements.txt     # Dependências do projeto
+│   └── Dockerfile           # Configuração Docker
+│
+├── docker-compose.yml       # Configuração Docker para dev
+├── docker-compose-prod.yml  # Configuração Docker para produção
+└── .env                     # Variáveis de ambiente (não versionadas)
 ```
 
-You can then open your browser and interact with these URLs:
+## 🚀 Getting Started
+### Prerequisites
 
-* Frontend, served with vite with hot reload of code: http://localhost
+Python 3.12+ (para rodar localmente)
 
-* Backend, JSON based web API based on OpenAPI, with hot code reloading: http://localhost/api/v1
+Docker & Docker Compose (opcional)
 
-* Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost/docs
 
-* Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
+### Run with Docker
 
-* Traefik UI, to see how the routes are being handled by the proxy: http://localhost:8090
-
-Once the stack is up, to check the logs, run:
-
-```bash
-docker compose logs
+1. Clone o repositório:
+```text
+git clone https://github.com/<seu-usuario>/<seu-repositorio>.git
+cd ecocyclo_back/backend
 ```
 
-To check the logs of a specific service, add the name of the service, e.g.:
+2. Copie e configure o arquivo .env na raiz do projeto.
 
-```bash
-docker compose logs backend
+Start the stack:
+```
+docker-compose up --build
 ```
 
-To get access to a bash session inside a container (e.g. the `backend`):
+3. Access API:
+```
+Swagger UI → http://localhost:8000/docs
 
-```console
-$ docker compose exec backend bash
+ReDoc → http://localhost:8000/redoc
+```
+4. Check logs:
+```
+docker-compose logs backend db
 ```
 
 
-### Docker Compose settings for production
+### Run Locally (Backend)
 
-The [docker-compose-prod.yml](./docker-compose.prod.yml) file contains the configuration to run the application with docker in a production environment, on a host server. To run the application with this file, run
-
-```console
-docker compose -f docker-compose.prod.yml up -d
+1. Clone o repositório:
+```
+git clone https://github.com/<seu-usuario>/<seu-repositorio>.git
+cd ecocyclo_back/backend
 ```
 
-**Note:** This will not work out of the box, mainly because the `docker-compose-prod.yml` configures a traefik proxy with ssl enabled that will try to fetch ssl certificates from Let's Encrypt, which will not work unless you specify a valid hostname accessible on the internet. However, to deploy the application in production on a server, you only need to set the required env variables in the [.env](./.env) file.
+2. Crie e ative o ambiente virtual:
+```
+# Windows PowerShell
+python -m venv env
+.\env\Scripts\Activate.ps1
 
-When using the production configuration, the frontend app is built into static files and the app is served by an nginx server. The [nginx configuration file](frontend/nginx.conf) is in the frontend dir.
+# Linux/Mac
+python -m venv env
+source env/bin/activate
+```
 
-### Docker Compose files and env vars
+3. Instale as dependências:
+```
+pip install -r requirements.txt
+```
 
-Both the [docker-compose.yml](./docker-compose.yml) and [docker-compose-prod.yml](./docker-compose.prod.yml) files use the [.env](./.env) file containing configurations to be injected as environment variables in the containers.
+4. Rode o servidor FastAPI:
+```
+uvicorn app.main:app --reload
+```
 
-The docker-compose files are designed to support several environments (i.e. development, testing, production) simply by setting the appropriate variable values in the `.env` file.
+5. Access:
+- API  → http://127.0.0.1:8000
 
-The [.env](./.env) file contains all the configuration variables. The values set in the `.env` file will override those that are set in the frontend `.env` files for local development.
+- Swagger UI → http://127.0.0.1:8000/docs
 
-The `.env` file that is commited to the github repository contains example values which are ok to use for testing and development, but which should be changed when running the application in production (admin passwords, secret keys, client ids, etc.). During deployment in production, the .env file is replaced with one containing the appropriate values.
+- ReDoc → http://127.0.0.1:8000/redoc
 
-## Setting up Single Sign-On (SSO) with google
+## 🔧 Development Tasks
 
-To setup SSO and enable the `Sign-In with Google` button, you must first obtain a client-id and secret token from Google. Follow [these steps](https://developers.google.com/identity/protocols/oauth2) to obtain client credentials from your [Google Cloud Console](https://console.cloud.google.com/).
+Format code:
+```
+task format
+```
 
-Create a new project, and from the `APIs & Services` menu, first create an `OAuth consent screen` for you application, then add an `OAuth 2.0 Client Id` in the `Credentials` menu. Select `Web application` as the application type. In the `Authorized redirect URIs`, add your hostname with the `api/v1/login/google/callback` endpoint. For instance, if testing locally while running the backend app with `uvicorn`, add `http://localhost:8000/api/v1/login/google/callback` (use `http://localhost/api/v1/login/google/callback` if running the application in dev with docker). If your application is hosted on a domain name, add it to the list of URIs (remember to update `http` to `https` when using SSL).
+(Executa black, ruff check --fix e ruff format)
 
-Once you've create a client-id and token in your Google cloud console, copy those into your `.env` file's `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` variables.
+Lint:
+```
+task lint
+```
 
-## Setting up automatic build of the docker images in github
+(Executa ruff check)
 
-The project has a [build workflow](./.github/workflows/build.yml) configuration to build the docker images for production and publish those into your Github package registry. To do this, you must first create a [Github Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for your project (call this environment `prod` or update the environment name in the workflow configuration.
+Test:
+```
+task test
+```
 
-You also need to add an environment secret variable `SERVER_ENV_PROD` which should contain the root `.env` file with the variables set for your production environment (simply copy-paste the contents of the env file as the github secret). This secret environment variable will be used by the github workflow to build the docker images with the [docker-compose.prod.yml](./docker-compose.prod.yml) file.
+(Executa pytest com coverage)
 
-Finally, enable write permission for the `GITHUB_TOKEN` to enable pushing images to your package registry: Go to `Settings` > `Actions` > `General` and check `Read and write permissions` under `Workflow permissions`.
+Atualizar dependências:
+```
+pip freeze > requirements.txt
+```
+
+## 🤝 Contributing
+
+Fork e crie uma branch:
+```
+git checkout -b feature/nova-funcionalidade
+```
+
+Instale dependências:
+```
+pip install -r requirements.txt
+```
+
+Faça commit das mudanças:
+```
+task format
+git commit -m "feat: descrição da feature"
+```
+
+Push e crie pull request.
+
+## 🙌 Acknowledgments
+
+Baseado em [jonasrenault/fastapi-react-mongodb-docker](https://github.com/jonasrenault/fastapi-react-mongodb-docker)

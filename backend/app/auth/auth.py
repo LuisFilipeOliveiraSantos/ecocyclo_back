@@ -2,13 +2,14 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
+import bcrypt
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.openapi.models import OAuthFlowPassword
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security import OAuth2, OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+# REMOVER: from passlib.context import CryptContext  # ❌ NÃO É MAIS NECESSÁRIO
 
 from .. import models, schemas
 from ..config.config import settings
@@ -64,15 +65,27 @@ oauth2_scheme_with_cookies = OAuth2PasswordBearerWithCookie(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
 )
 
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# REMOVER: password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def get_hashed_password(password: str) -> str:
-    return password_context.hash(password)
-
+    """
+    Hash a password using bcrypt
+    """
+    # Converte para bytes e aplica hash
+    password_bytes = password.encode('utf-8')
+    # bcrypt automaticamente lida com senhas até 72 bytes
+    hashed_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+    # Converte de volta para string para armazenamento
+    return hashed_bytes.decode('utf-8')
 
 def verify_password(password: str, hashed_pass: str) -> bool:
-    return password_context.verify(password, hashed_pass)
+    """
+    Verify a password against a hash using bcrypt
+    """
+    password_bytes = password.encode('utf-8')
+    hashed_bytes = hashed_pass.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
 async def authenticate_user(email: str, password: str) -> models.User | None:
