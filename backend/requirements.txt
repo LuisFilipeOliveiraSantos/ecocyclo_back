@@ -94,7 +94,10 @@ watchdog==6.0.0
 watchfiles==1.0.5
 websockets==15.0.1
 certifi==2025.8.3
+torch==2.3.1
+torchvision==0.18.1
 ultralytics==8.3.212
+
 
 
 
