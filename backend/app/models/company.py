@@ -14,6 +14,7 @@ class Company(Document):
     uuid: Annotated[UUID, Field(default_factory=uuid4), Indexed(unique=True)]
     cnpj: Annotated[str, Indexed(unique=True)]
     email: Annotated[EmailStr, Indexed(unique=True)]
+    nome: Annotated[str, Indexed(unique=True)]
     telefone: str
     hashed_password: str
     company_type: CompanyType

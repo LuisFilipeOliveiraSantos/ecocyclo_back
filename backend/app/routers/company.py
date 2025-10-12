@@ -26,7 +26,8 @@ async def register_company(company: CompanyCreate):
     existing_company = await models.Company.find_one({
         "$or": [
             {"email": company.email},
-            {"cnpj": company.cnpj}
+            {"cnpj": company.cnpj},
+            {"nome": company.nome}
         ]
     })
     
@@ -36,6 +37,7 @@ async def register_company(company: CompanyCreate):
     hashed_password = get_hashed_password(company.password)
 
     new_company = models.Company(
+        nome=company.nome,
         cnpj=company.cnpj,
         email=company.email,
         telefone=company.telefone,
@@ -84,10 +86,21 @@ async def update_my_company(
     """
     update_data = update.model_dump(exclude_unset=True)
     
+    if "nome" in update_data and update_data["nome"] != current_company.nome:
+        # Verificar se outro company já tem esse nome
+        existing_company = await models.Company.find_one({
+            "nome": update_data["nome"],
+            "uuid": {"$ne": current_company.uuid}  # excluir a própria company
+        })
+        if existing_company:
+            raise HTTPException(status_code=400, detail="Company with that name already exists")
+
     if "password" in update_data:
         update_data["hashed_password"] = get_hashed_password(update_data["password"])
         del update_data["password"]
         del update_data["confirm_password"]
+
+        
 
     current_company = current_company.model_copy(update=update_data)
     try:
@@ -128,6 +141,16 @@ async def update_company(
         raise HTTPException(status_code=404, detail="Company not found")
 
     update_data = update.model_dump(exclude_unset=True)
+
+    
+    if "nome" in update_data and update_data["nome"] != company.nome:
+        existing_company = await models.Company.find_one({
+            "nome": update_data["nome"],
+            "uuid": {"$ne": company_id}
+        })
+        if existing_company:
+            raise HTTPException(status_code=400, detail="Company with that name already exists")
+
     if "password" in update_data:
         update_data["hashed_password"] = get_hashed_password(update_data["password"])
         del update_data["password"]

@@ -5,6 +5,7 @@ from datetime import datetime
 from app.models.company import CompanyType
 
 class CompanyBase(BaseModel):
+    nome: str
     cnpj: str
     email: EmailStr
     telefone: str
@@ -43,6 +44,7 @@ class CompanyCreate(CompanyBase):
         return self
 
 class CompanyUpdate(BaseModel):
+    nome: Optional[str] = None
     telefone: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
