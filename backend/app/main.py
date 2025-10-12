@@ -17,7 +17,7 @@ from .seeds import seed_admin
 async def lifespan(app: FastAPI):
     # Setup MongoDB
     app.state.client = AsyncIOMotorClient(
-        settings.MONGO_HOST, tls=True, tlsCAFile=certifi.where()
+        settings.MONGO_HOST,
     )
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
@@ -57,6 +57,7 @@ if settings.BACKEND_CORS_ORIGINS:
 
 # Inclui rotas
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 
 # -----------------------------
