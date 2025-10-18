@@ -4,6 +4,7 @@ from . import login, users
 from . import company_auth, company
 from .  import password_reset
 from . import object_recognition
+
 api_router = APIRouter()
 api_router.include_router(login.router, prefix="/login", tags=["login"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
