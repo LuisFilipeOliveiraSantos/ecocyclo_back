@@ -1,50 +1,27 @@
+import google.generativeai as genai
 
-from ultralytics import YOLO
-from pathlib import Path
-from PIL import Image
-import io
+genai.configure(api_key="AIzaSyBwVzj66buIhe8NOxmMo1DGa6b45HrMJ6w")
 
-MODEL_PATH = Path(__file__).parent / "yolov8n.pt"
-try:
-    MODEL = YOLO(str(MODEL_PATH))
-except FileNotFoundError:
-    print(f"Aviso: O arquivo do modelo não foi encontrado em {MODEL_PATH}.")
-    MODEL = None
-
-CLASS_TRANSLATIONS = {
-    "laptop": "notebook",
-    "keyboard": "teclado",
-    "mouse": "mouse",
-    "monitor": "monitor",
-    "tv": "Monitor",
-    "remote": "controle remoto",
-    "cell phone": "celular",
-    "camera": "câmera",
-}
-
-
-def get_model():
-    return MODEL
+LISTA_DE_ELETRONICOS = [
+    "celular", "laptop", "tablet", "monitor", "teclado", "mouse", 
+    "headset", "CPU", "Placa-mãe", "Controle remoto"
+]
 
 def predict_image(image_data: bytes):
-    if not MODEL:
-        return {"error": "O modelo de IA não está disponível."}
-    image = Image.open(io.BytesIO(image_data))
-    results = MODEL(image)
-    processed_results = []
-    for r in results:
-        boxes = r.boxes
-        for box in boxes:
-            #x1, y1, x2, y2 = [round(x) for x in box.xyxy[0].tolist()]
-            cls = int(box.cls[0].tolist())
-            conf = round(box.conf[0].tolist(), 2)
-            class_name = MODEL.names[cls]
-            if class_name in CLASS_TRANSLATIONS:
-                translated_class = CLASS_TRANSLATIONS.get(class_name, class_name)
-                processed_results.append({
-                    "class": translated_class,
-                    "confidence": conf,
-                })
+    #base64_image = base64.b64encode(image_data).decode('utf-8')
+    try:
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content([
+            "Analise esta imagem e identifique se existe os objetos eletrônicos presentes nessa lista:"
+            f"{', '.join(LISTA_DE_ELETRONICOS)}. "
+            "Se existir, apenas devolva quais como uma lista de strings. "
+            "Se não existir, devolva 'Nenhum objeto eletronico identificado.'"
+            "Siga esse padrão de resposta: ['celular', 'laptop', 'teclado']." ,
+            {'mime_type': 'image/jpeg', 'data': image_data}
+        ])
+        predicao = response.text
+        return predicao
 
-    return processed_results
-
+    except Exception as e:
+        print(f"Erro ao analisar a imagem com a API do Gemini: {e}")
+        return []
