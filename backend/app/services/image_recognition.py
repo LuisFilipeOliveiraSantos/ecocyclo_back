@@ -1,6 +1,9 @@
 import google.generativeai as genai
-
-genai.configure(api_key="AIzaSyBwVzj66buIhe8NOxmMo1DGa6b45HrMJ6w")
+from dotenv import load_dotenv
+import os
+load_dotenv()
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=str(gemini_api_key))
 
 LISTA_DE_ELETRONICOS = [
     "celular", "laptop", "tablet", "monitor", "teclado", "mouse", 
