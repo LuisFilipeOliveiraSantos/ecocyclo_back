@@ -12,6 +12,7 @@ from app.auth.auth_company import (
     get_current_active_company,
     get_current_active_admin_company,
 )
+from app.services.geocoding_service import geocoding_service
 
 router = APIRouter()
 
@@ -55,6 +56,20 @@ async def register_company(company: CompanyCreate):
 
     try:
         await new_company.create()
+        
+        # Obter coordenadas após criar a company
+        address_data = {
+            'rua': company.rua,
+            'numero': company.numero,
+            'bairro': company.bairro,
+            'cidade': company.cidade,
+            'uf': company.uf
+        }
+        coordinates = await geocoding_service.get_coordinates_from_address(address_data)
+        if coordinates:
+            new_company.latitude, new_company.longitude = coordinates
+            await new_company.save()
+        
         return new_company
     except errors.DuplicateKeyError:
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
@@ -129,7 +144,6 @@ async def get_company(
     return company
 
 
-
 @router.patch("/{company_id}", response_model=CompanyOut)
 async def update_company(
     company_id: UUID,
@@ -156,9 +170,19 @@ async def update_company(
         del update_data["password"]
         del update_data["confirm_password"]
 
+    # Verificar se algum campo de endereço foi atualizado
+    address_fields = ['rua', 'numero', 'bairro', 'cidade', 'uf', 'cep']
+    address_updated = any(field in update_data for field in address_fields)
+    
     updated_company = company.model_copy(update=update_data)
+    
     try:
         await updated_company.save()
+        
+        # Se endereço foi atualizado, buscar novas coordenadas
+        if address_updated:
+            await updated_company.update_geolocation()
+            
         return updated_company
     except (errors.DuplicateKeyError, RevisionIdWasChanged):
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")

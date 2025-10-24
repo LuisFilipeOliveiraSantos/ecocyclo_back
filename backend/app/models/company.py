@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 from enum import Enum
@@ -18,7 +18,7 @@ class Company(Document):
     telefone: str
     hashed_password: str
     company_type: CompanyType
-    
+   
     # Endereço
     cep: str
     rua: str
@@ -30,6 +30,10 @@ class Company(Document):
     # Opcionais
     complemento: str | None = None
     referencia: str | None = None
+    
+    # Geolocalização
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     
     # Status e avaliação (valores padrão)
     is_active: bool = True
@@ -48,6 +52,23 @@ class Company(Document):
     
     def is_descartante(self) -> bool:
         return self.company_type == CompanyType.EMPRESA_DESCARTANTE
+
+    async def update_geolocation(self):
+        """Atualiza as coordenadas de geolocalização"""
+        from app.services.geocoding_service import geocoding_service
+        
+        address_data = {
+            'rua': self.rua,
+            'numero': self.numero,
+            'bairro': self.bairro,
+            'cidade': self.cidade,
+            'uf': self.uf
+        }
+        
+        coordinates = await geocoding_service.get_coordinates_from_address(address_data)
+        if coordinates:
+            self.latitude, self.longitude = coordinates
+            await self.save()
 
     class Settings:
         name = "companies"

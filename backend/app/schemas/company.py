@@ -76,6 +76,8 @@ class CompanyOut(CompanyBase):
     total_ratings: int
     total_points: int
     total_rewards_redeemed: int
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     created_at: datetime
     updated_at: datetime
 
@@ -84,5 +86,3 @@ class CompanyOut(CompanyBase):
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
-
-
