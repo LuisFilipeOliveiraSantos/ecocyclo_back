@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 from uuid import UUID
 
 from beanie.exceptions import RevisionIdWasChanged
@@ -6,16 +6,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from pymongo import errors
 
 from app import models
-from app.schemas.company import CompanyCreate, CompanyUpdate, CompanyOut
+from app.schemas.company import CompanyCreate, CompanyUpdate, CompanyOut, CompanyMapFilter, CompanyMapOut
 from app.auth.auth_company import (
     get_hashed_password,
     get_current_active_company,
     get_current_active_admin_company,
 )
 from app.services.geocoding_service import geocoding_service
+from app.services.company_service import company_service
 
 router = APIRouter()
-
 
 
 @router.post("/register", response_model=CompanyOut)
@@ -44,6 +44,9 @@ async def register_company(company: CompanyCreate):
         telefone=company.telefone,
         hashed_password=hashed_password,
         company_type=company.company_type,
+        company_description=company.company_description,
+        company_colector_tags=company.company_colector_tags,
+        company_photo_url=company.company_photo_url,
         cep=company.cep,
         rua=company.rua,
         numero=company.numero,
@@ -73,6 +76,7 @@ async def register_company(company: CompanyCreate):
         return new_company
     except errors.DuplicateKeyError:
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
+
 
 @router.get("/", response_model=list[CompanyOut])
 async def get_companies(
@@ -116,6 +120,29 @@ async def update_my_company(
         del update_data["confirm_password"]
 
         
+    if "company_colector_tags" in update_data:
+        # Empresa não coletaora não pode ter tags
+        if not current_company.is_coletora():
+            raise HTTPException(
+                status_code=400, 
+                detail="Apenas empresas coletoras podem definir tags"
+            )
+        
+    tags = update_data["company_colector_tags"]
+    if not tags or len(tags) == 0:
+        raise HTTPException(
+            status_code=400, 
+            detail="Empresas coletoras devem selecionar pelo menos uma tag"
+        )
+
+    # Validar tags se for coletora
+    if (current_company.is_coletora() and 
+        "company_colector_tags" in update_data and 
+        (not update_data["company_colector_tags"] or len(update_data["company_colector_tags"]) == 0)):
+        raise HTTPException(
+            status_code=400, 
+            detail="Empresas coletoras devem selecionar pelo menos uma tag"
+        )
 
     current_company = current_company.model_copy(update=update_data)
     try:
