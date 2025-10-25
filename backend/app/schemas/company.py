@@ -1,8 +1,8 @@
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, model_validator, field_validator
-from typing import Optional, Union
+from pydantic import BaseModel, EmailStr, model_validator, field_validator, HttpUrl
+from typing import Optional, Union, List
 from datetime import datetime
-from app.models.company import CompanyType
+from app.models.company import CompanyType, Companycolectortags
 
 class CompanyBase(BaseModel):
     nome: str
@@ -10,6 +10,8 @@ class CompanyBase(BaseModel):
     email: EmailStr
     telefone: str
     company_type: Union[CompanyType, str]
+    company_description: Optional[str] = None
+    company_photo_url: Optional[HttpUrl] = None
     
     # Endereço
     cep: str
@@ -36,17 +38,29 @@ class CompanyBase(BaseModel):
 class CompanyCreate(CompanyBase):
     password: str
     confirm_password: str
+    company_colector_tags: Optional[List[Companycolectortags]] = None
     
     @model_validator(mode='after')
     def check_passwords_match(self):
         if self.password != self.confirm_password:
             raise ValueError('Passwords do not match')
         return self
+    
+    @model_validator(mode='after')
+    def validate_coletora_tags(self):
+        """Valida que empresas coletoras devem ter tags"""
+        if (self.company_type == CompanyType.EMPRESA_COLETORA and 
+            (not self.company_colector_tags or len(self.company_colector_tags) == 0)):
+            raise ValueError("Empresas coletoras devem selecionar pelo menos uma tag")
+        return self
 
 class CompanyUpdate(BaseModel):
     nome: Optional[str] = None
     telefone: Optional[str] = None
     email: Optional[EmailStr] = None
+    company_description: Optional[str] = None
+    company_colector_tags: Optional[List[Companycolectortags]] = None
+    company_photo_url: Optional[HttpUrl] = None
     password: Optional[str] = None
     confirm_password: Optional[str] = None
     
@@ -68,14 +82,27 @@ class CompanyUpdate(BaseModel):
         if self.password and self.password != self.confirm_password:
             raise ValueError('Passwords do not match')
         return self
+    
+    @model_validator(mode='after')
+    def validate_coletora_tags(self):
+        """Valida que empresas coletoras devem ter tags"""
+        if (hasattr(self, 'company_type') and 
+            self.company_type == CompanyType.EMPRESA_COLETORA and 
+            self.company_colector_tags is not None and 
+            len(self.company_colector_tags) == 0):
+            raise ValueError("Empresas coletoras devem selecionar pelo menos uma tag")
+        return self
 
 class CompanyOut(CompanyBase):
     uuid: UUID
+    company_colector_tags: Optional[List[Companycolectortags]] = None
     is_active: bool
     rating_average: float
     total_ratings: int
     total_points: int
     total_rewards_redeemed: int
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     created_at: datetime
     updated_at: datetime
 
@@ -85,4 +112,25 @@ class CompanyOut(CompanyBase):
             datetime: lambda v: v.isoformat()
         }
 
+# Schema para filtro de empresas no mapa
+class CompanyMapFilter(BaseModel):
+    tags: Optional[List[Companycolectortags]] = None
+    city: Optional[str] = None
+    uf: Optional[str] = None
+    min_rating: Optional[float] = None
 
+# Schema para resposta do mapa
+class CompanyMapOut(BaseModel):
+    uuid: UUID
+    nome: str
+    company_type: CompanyType
+    company_colector_tags: Optional[List[Companycolectortags]] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    rating_average: float
+    total_ratings: int
+    cidade: str
+    uf: str
+
+    class Config:
+        from_attributes = True

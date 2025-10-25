@@ -29,3 +29,4 @@ class Discard(Document):
             "empresa_solicitante_id",
             "empresa_solicitada_id",
         ]
+

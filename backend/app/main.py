@@ -12,16 +12,20 @@ from .models.users import User
 from .routers.api import api_router
 from .models.company import Company
 from .seeds import seed_admin
+from . models.rating import Rating
+from . models.discard import Discard
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup MongoDB
     app.state.client = AsyncIOMotorClient(
         settings.MONGO_HOST,
+        # tls=True,
+        # tlsCAFile=certifi.where()
     )
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
-        document_models=[User, Company]
+        document_models=[User, Company, Discard, Rating]
         
     )
     # Seed initial admin company

@@ -1,3 +1,4 @@
+google-generativeai==0.8.5
 absl-py==2.3.1
 altair==5.5.0
 annotated-types==0.7.0
@@ -154,9 +155,9 @@ typer==0.19.2
 typing-inspection==0.4.1
 typing_extensions==4.14.0
 tzdata==2025.2
-ultralytics==8.3.208
-ultralytics-thop==2.0.17
 uritemplate==4.2.0
+ultralytics==8.3.212
+ultralytics-thop==2.0.17
 urllib3==2.5.0
 uvicorn==0.34.3
 uvloop==0.21.0

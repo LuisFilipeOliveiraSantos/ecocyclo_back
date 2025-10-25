@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 from uuid import UUID
 
 from beanie.exceptions import RevisionIdWasChanged
@@ -6,15 +6,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from pymongo import errors
 
 from app import models
-from app.schemas.company import CompanyCreate, CompanyUpdate, CompanyOut
+from app.schemas.company import CompanyCreate, CompanyUpdate, CompanyOut, CompanyMapFilter, CompanyMapOut
 from app.auth.auth_company import (
     get_hashed_password,
     get_current_active_company,
     get_current_active_admin_company,
 )
+from app.services.geocoding_service import geocoding_service
+from app.services.company_service import company_service
 
 router = APIRouter()
-
 
 
 @router.post("/register", response_model=CompanyOut)
@@ -43,6 +44,9 @@ async def register_company(company: CompanyCreate):
         telefone=company.telefone,
         hashed_password=hashed_password,
         company_type=company.company_type,
+        company_description=company.company_description,
+        company_colector_tags=company.company_colector_tags,
+        company_photo_url=company.company_photo_url,
         cep=company.cep,
         rua=company.rua,
         numero=company.numero,
@@ -55,9 +59,24 @@ async def register_company(company: CompanyCreate):
 
     try:
         await new_company.create()
+        
+        # Obter coordenadas após criar a company
+        address_data = {
+            'rua': company.rua,
+            'numero': company.numero,
+            'bairro': company.bairro,
+            'cidade': company.cidade,
+            'uf': company.uf
+        }
+        coordinates = await geocoding_service.get_coordinates_from_address(address_data)
+        if coordinates:
+            new_company.latitude, new_company.longitude = coordinates
+            await new_company.save()
+        
         return new_company
     except errors.DuplicateKeyError:
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
+
 
 @router.get("/", response_model=list[CompanyOut])
 async def get_companies(
@@ -101,6 +120,29 @@ async def update_my_company(
         del update_data["confirm_password"]
 
         
+    if "company_colector_tags" in update_data:
+        # Empresa não coletaora não pode ter tags
+        if not current_company.is_coletora():
+            raise HTTPException(
+                status_code=400, 
+                detail="Apenas empresas coletoras podem definir tags"
+            )
+        
+    tags = update_data["company_colector_tags"]
+    if not tags or len(tags) == 0:
+        raise HTTPException(
+            status_code=400, 
+            detail="Empresas coletoras devem selecionar pelo menos uma tag"
+        )
+
+    # Validar tags se for coletora
+    if (current_company.is_coletora() and 
+        "company_colector_tags" in update_data and 
+        (not update_data["company_colector_tags"] or len(update_data["company_colector_tags"]) == 0)):
+        raise HTTPException(
+            status_code=400, 
+            detail="Empresas coletoras devem selecionar pelo menos uma tag"
+        )
 
     current_company = current_company.model_copy(update=update_data)
     try:
@@ -129,7 +171,6 @@ async def get_company(
     return company
 
 
-
 @router.patch("/{company_id}", response_model=CompanyOut)
 async def update_company(
     company_id: UUID,
@@ -156,9 +197,19 @@ async def update_company(
         del update_data["password"]
         del update_data["confirm_password"]
 
+    # Verificar se algum campo de endereço foi atualizado
+    address_fields = ['rua', 'numero', 'bairro', 'cidade', 'uf', 'cep']
+    address_updated = any(field in update_data for field in address_fields)
+    
     updated_company = company.model_copy(update=update_data)
+    
     try:
         await updated_company.save()
+        
+        # Se endereço foi atualizado, buscar novas coordenadas
+        if address_updated:
+            await updated_company.update_geolocation()
+            
         return updated_company
     except (errors.DuplicateKeyError, RevisionIdWasChanged):
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")

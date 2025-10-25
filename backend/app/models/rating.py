@@ -16,3 +16,12 @@ class Rating(Document):
     company_avaliadora_uuid: Link[Company]  
     created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=datetime.now(timezone.utc))
+
+
+    class Settings:
+        name = "ratings"
+        
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }

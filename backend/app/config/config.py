@@ -37,5 +37,4 @@ class Settings(BaseSettings):
     SSO_CALLBACK_HOSTNAME: str | None = None
     SSO_LOGIN_CALLBACK_URL: str | None = None
 
-
 settings = Settings()  # type: ignore
