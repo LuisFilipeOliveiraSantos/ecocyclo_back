@@ -24,7 +24,7 @@ async def process_photo_endpoint(file: UploadFile = File(...)):
                 detail=prediction["error"]
             )
             
-        return {"status": "success", "data": prediction}
+        return prediction
 
     except HTTPException as e:
         raise e
