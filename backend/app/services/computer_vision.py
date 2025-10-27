@@ -10,6 +10,8 @@ LISTA_DE_ELETRONICOS = [
     "Fone de ouvido", "CPU", "Placa-mãe", "Controle remoto", "Televisão"
 ]
 
+
+
 def predict_image(image_data: bytes):
 
     try:
@@ -18,7 +20,7 @@ def predict_image(image_data: bytes):
             "Analise esta imagem e identifique se existe os objetos eletrônicos presentes nessa lista:"
             f"{', '.join(LISTA_DE_ELETRONICOS)}. "
             "Se existir, apenas devolva quais e a quantidade desse objeto. "
-            "Siga esse padrão de resposta: {'celular': 1, 'laptop': 3, 'teclado': 1}."
+            "Siga esse padrão de resposta, porém com aspas duplas: {'celular': 1, 'laptop': 3, 'teclado': 1}."
              "Se não existir, devolva 'Nenhum objeto eletronico identificado.'" ,
             {'mime_type': 'image/jpeg', 'data': image_data}
         ])
