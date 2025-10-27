@@ -10,7 +10,8 @@ class DiscardCreate(BaseModel):
     quantidade_total: int  # Soma de todas as quantidades
     data_descarte: datetime
     local_coleta: str | None = None
-
+    empresa_solicitante_id: str
+    
 class DiscardRequest(BaseModel):
     gemini_itens: dict
     empresa_solicitada_id: str

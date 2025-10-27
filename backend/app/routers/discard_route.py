@@ -17,10 +17,11 @@ async def create_discard(request: DiscardRequest):
             itens_descarte=request.gemini_itens, 
             quantidade_total=sum(request.gemini_itens.values()),
             data_descarte=request.data_descarte,
-            local_coleta=request.local_coleta
+            local_coleta=request.local_coleta,
+            empresa_solicitante_id = request.empresa_solicitante_id
         )        
         # Criar descarte
-        discard = await DiscardService.create_discard(discard_data, request.empresa_solicitante_id)
+        discard = await DiscardService.create_discard(discard_data)
         
         return discard  
         

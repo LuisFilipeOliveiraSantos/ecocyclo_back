@@ -8,11 +8,11 @@ from app.schemas.discard_schema import DiscardCreate
 class DiscardService:
     
     @staticmethod
-    async def create_discard(discard_data: DiscardCreate, empresa_solicitante_id: str) -> Discard:
-        # Converter IDs
+    async def create_discard(discard_data: DiscardCreate) -> Discard:
+
 
         empresa_solicitada_object_id = PydanticObjectId(discard_data.empresa_solicitada_id)
-        empresa_solicitante_object_id = PydanticObjectId(empresa_solicitante_id)
+        empresa_solicitante_object_id = PydanticObjectId(discard_data.empresa_solicitante_id)
         
         discard = Discard(
             empresa_solicitante_id=empresa_solicitante_object_id,
