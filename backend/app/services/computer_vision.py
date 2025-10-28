@@ -7,19 +7,21 @@ genai.configure(api_key=str(gemini_api_key))
 
 LISTA_DE_ELETRONICOS = [
     "celular", "laptop", "tablet", "monitor", "teclado", "mouse", 
-    "headset", "CPU", "Placa-mãe", "Controle remoto"
+    "Fone de ouvido", "CPU", "Placa-mãe", "Controle remoto", "Televisão"
 ]
 
+
+
 def predict_image(image_data: bytes):
-    #base64_image = base64.b64encode(image_data).decode('utf-8')
+
     try:
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content([
             "Analise esta imagem e identifique se existe os objetos eletrônicos presentes nessa lista:"
             f"{', '.join(LISTA_DE_ELETRONICOS)}. "
-            "Se existir, apenas devolva quais como uma lista de strings. "
-            "Se não existir, devolva 'Nenhum objeto eletronico identificado.'"
-            "Siga esse padrão de resposta: ['celular', 'laptop', 'teclado']." ,
+            "Se existir, apenas devolva quais e a quantidade desse objeto. "
+            "Siga esse padrão de resposta, porém com aspas duplas: {'celular': 1, 'laptop': 3, 'teclado': 1}."
+             "Se não existir, devolva 'Nenhum objeto eletronico identificado.'" ,
             {'mime_type': 'image/jpeg', 'data': image_data}
         ])
         predicao = response.text

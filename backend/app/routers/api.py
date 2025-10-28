@@ -6,7 +6,9 @@ from .  import password_reset
 from . import object_recognition
 from . import company_avaliations
 from . import map_filter_company
-from . import location
+from . import location 
+from . import discard_route
+
 
 api_router = APIRouter()
 api_router.include_router(company_auth.router, prefix="/company/login", tags=["company auth"])
@@ -16,6 +18,7 @@ api_router.include_router(object_recognition.router, prefix="/object_recognition
 api_router.include_router(company_avaliations.router, prefix="/company/avaliations", tags=["Company avaliations"])
 api_router.include_router(map_filter_company.router, prefix="/company", tags=["Company map and filter"])
 api_router.include_router(location.router, prefix="/location", tags=["location"])
+api_router.include_router(discard_route.router, prefix="/discards", tags=["discards"])
 
 @api_router.get("/")
 async def root():
