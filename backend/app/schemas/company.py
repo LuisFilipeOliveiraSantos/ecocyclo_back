@@ -123,12 +123,16 @@ class CompanyMapFilter(BaseModel):
 class CompanyMapOut(BaseModel):
     uuid: UUID
     nome: str
+    company_photo_url: Optional[HttpUrl] = None
+    telefone: str
+    company_description: str
     company_type: CompanyType
     company_colector_tags: Optional[List[Companycolectortags]] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     rating_average: float
     total_ratings: int
+    bairro: str
+    rua: str
+    numero: str
     cidade: str
     uf: str
 
