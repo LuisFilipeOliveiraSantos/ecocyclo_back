@@ -15,14 +15,13 @@ from .seeds import seed_admin
 from . models.rating import Rating
 from . models.discard import Discard
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup MongoDB
     app.state.client = AsyncIOMotorClient(
         settings.MONGO_HOST,
-        tls=True,
-        tlsCAFile=certifi.where()
+        # tls=True,
+        # tlsCAFile=certifi.where()
     )
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
