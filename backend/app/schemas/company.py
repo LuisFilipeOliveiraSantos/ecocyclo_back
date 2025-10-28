@@ -112,14 +112,13 @@ class CompanyOut(CompanyBase):
             datetime: lambda v: v.isoformat()
         }
 
-# Schema para filtro de empresas no mapa
+
 class CompanyMapFilter(BaseModel):
     tags: Optional[List[Companycolectortags]] = None
     city: Optional[str] = None
     uf: Optional[str] = None
     min_rating: Optional[float] = None
 
-# Schema para resposta do mapa
 class CompanyMapOut(BaseModel):
     uuid: UUID
     nome: str
@@ -133,6 +132,21 @@ class CompanyMapOut(BaseModel):
     bairro: str
     rua: str
     numero: str
+    cidade: str
+    uf: str
+
+    class Config:
+            from_attributes = True
+
+class CompanyMapSimpleOut(BaseModel):
+    uuid: UUID
+    nome: str
+    company_type: CompanyType
+    company_colector_tags: Optional[List[Companycolectortags]] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    rating_average: float
+    total_ratings: int
     cidade: str
     uf: str
 
