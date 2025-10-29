@@ -23,8 +23,8 @@ class DiscardResponse(BaseModel):
     discard_id: UUID
     data_descarte: datetime
     status: str
-    empresa_solicitante_id: PydanticObjectId
-    empresa_solicitada_id: PydanticObjectId
+    empresa_solicitante_id: UUID
+    empresa_solicitada_id: UUID
     itens_descarte: dict
     quantidade_total: int
     local_coleta: str | None

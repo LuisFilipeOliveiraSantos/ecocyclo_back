@@ -17,8 +17,8 @@ class Discard(Document):
     discard_id: UUID = Field(default_factory=uuid4)
     data_descarte: datetime | None = None
     status: DiscardStatus = DiscardStatus.PENDENTE
-    empresa_solicitante_id: PydanticObjectId 
-    empresa_solicitada_id: PydanticObjectId
+    empresa_solicitante_id: UUID
+    empresa_solicitada_id: UUID
     itens_descarte: dict = Field(default_factory=dict)
     quantidade_total: int = Field(default=0)
     local_coleta: str | None = None
