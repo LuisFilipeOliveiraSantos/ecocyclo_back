@@ -149,6 +149,12 @@ class CompanyMapSimpleOut(BaseModel):
     total_ratings: int
     cidade: str
     uf: str
+    company_photo_url: Optional[HttpUrl] = None
+    telefone: Optional[str] = None
+    company_description: Optional[str] = None
+    bairro: Optional[str] = None
+    rua: Optional[str] = None
+    numero: Optional[str] = None
 
     class Config:
         from_attributes = True

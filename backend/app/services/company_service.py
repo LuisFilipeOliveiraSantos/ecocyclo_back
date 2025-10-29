@@ -51,7 +51,6 @@ class CompanyService:
             uf=company.uf
         ) for company in companies if company.latitude and company.longitude]
 
-
     @staticmethod
     async def get_companies_for_map_simple(filter_data: CompanyMapFilter) -> List[CompanyMapSimpleOut]:
         """
@@ -83,7 +82,13 @@ class CompanyService:
             rating_average=company.rating_average,
             total_ratings=company.total_ratings,
             cidade=company.cidade,
-            uf=company.uf
+            uf=company.uf,
+            company_photo_url=company.company_photo_url,
+            telefone=company.telefone,
+            company_description=company.company_description or "Sem descrição",
+            bairro=company.bairro,
+            rua=company.rua,
+            numero=company.numero
         ) for company in companies if company.latitude is not None and company.longitude is not None]
 
 
