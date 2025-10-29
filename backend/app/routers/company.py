@@ -159,6 +159,17 @@ async def delete_me(current_company: models.Company = Depends(get_current_active
     return current_company
 
 
+@router.get("/id", response_model=CompanyMapOut)
+async def get_company(
+    company_id: UUID,
+    admin_company: models.Company = Depends(get_current_active_company),
+):
+    company = await models.Company.find_one({"uuid": company_id})
+    if company is None:
+        raise HTTPException(status_code=404, detail="Company not found")
+    return company
+
+
 
 @router.get("/{company_id}", response_model=CompanyOut)
 async def get_company(

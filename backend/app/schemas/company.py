@@ -112,15 +112,33 @@ class CompanyOut(CompanyBase):
             datetime: lambda v: v.isoformat()
         }
 
-# Schema para filtro de empresas no mapa
+
 class CompanyMapFilter(BaseModel):
     tags: Optional[List[Companycolectortags]] = None
     city: Optional[str] = None
     uf: Optional[str] = None
     min_rating: Optional[float] = None
 
-# Schema para resposta do mapa
 class CompanyMapOut(BaseModel):
+    uuid: UUID
+    nome: str
+    company_photo_url: Optional[HttpUrl] = None
+    telefone: str
+    company_description: str
+    company_type: CompanyType
+    company_colector_tags: Optional[List[Companycolectortags]] = None
+    rating_average: float
+    total_ratings: int
+    bairro: str
+    rua: str
+    numero: str
+    cidade: str
+    uf: str
+
+    class Config:
+            from_attributes = True
+
+class CompanyMapSimpleOut(BaseModel):
     uuid: UUID
     nome: str
     company_type: CompanyType
@@ -131,6 +149,12 @@ class CompanyMapOut(BaseModel):
     total_ratings: int
     cidade: str
     uf: str
+    company_photo_url: Optional[HttpUrl] = None
+    telefone: Optional[str] = None
+    company_description: Optional[str] = None
+    bairro: Optional[str] = None
+    rua: Optional[str] = None
+    numero: Optional[str] = None
 
     class Config:
         from_attributes = True

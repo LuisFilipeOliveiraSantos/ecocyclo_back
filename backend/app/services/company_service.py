@@ -1,10 +1,11 @@
 from typing import List, Optional
 from uuid import UUID
 from app.models.company import Company, CompanyType, Companycolectortags
-from app.schemas.company import CompanyMapFilter, CompanyMapOut
+from app.schemas.company import CompanyMapFilter, CompanyMapOut, CompanyMapSimpleOut
 from app.core.exceptions import NotFoundException
 
 class CompanyService:
+    
     
     @staticmethod
     async def get_companies_for_map(filter_data: CompanyMapFilter) -> List[CompanyMapOut]:
@@ -34,16 +35,63 @@ class CompanyService:
         return [CompanyMapOut(
             uuid=company.uuid,
             nome=company.nome,
+            company_photo_url=company.company_photo_url,
+            telefone=company.telefone,                           
+            company_description=company.company_description or "Sem descrição",  
             company_type=company.company_type,
             company_colector_tags=company.company_colector_tags,
-            latitude=company.latitude,
+            atitude=company.latitude,          
+            longitude=company.longitude, 
+            rating_average=company.rating_average,
+            total_ratings=company.total_ratings,
+            bairro=company.bairro,                       
+            rua=company.rua,                              
+            numero=company.numero,                        
+            cidade=company.cidade,
+            uf=company.uf
+        ) for company in companies if company.latitude and company.longitude]
+
+    @staticmethod
+    async def get_companies_for_map_simple(filter_data: CompanyMapFilter) -> List[CompanyMapSimpleOut]:
+        """
+        Busca empresas para exibição no mapa com filtros (versão simplificada)
+        """
+        query = {"is_active": True, "company_type": CompanyType.EMPRESA_COLETORA}
+        
+        if filter_data.tags:
+            query["company_colector_tags"] = {"$in": filter_data.tags}
+        
+        if filter_data.city:
+            query["cidade"] = {"$regex": filter_data.city, "$options": "i"} 
+        
+        if filter_data.uf:
+            query["uf"] = filter_data.uf.upper()
+        
+        if filter_data.min_rating is not None:
+            query["rating_average"] = {"$gte": filter_data.min_rating}
+        
+        companies = await Company.find(query).to_list()
+        
+        return [CompanyMapSimpleOut(
+            uuid=company.uuid,
+            nome=company.nome,
+            company_type=company.company_type,
+            company_colector_tags=company.company_colector_tags,
+            latitude=company.latitude,          
             longitude=company.longitude,
             rating_average=company.rating_average,
             total_ratings=company.total_ratings,
             cidade=company.cidade,
-            uf=company.uf
-        ) for company in companies if company.latitude and company.longitude]
-    
+            uf=company.uf,
+            company_photo_url=company.company_photo_url,
+            telefone=company.telefone,
+            company_description=company.company_description or "Sem descrição",
+            bairro=company.bairro,
+            rua=company.rua,
+            numero=company.numero
+        ) for company in companies if company.latitude is not None and company.longitude is not None]
+
+
     @staticmethod
     async def get_available_tags() -> List[str]:
         """

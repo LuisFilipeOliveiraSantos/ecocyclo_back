@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo import errors
 
 from app import models
-from app.schemas.company import CompanyOut, CompanyMapFilter, CompanyMapOut
+from app.schemas.company import CompanyOut, CompanyMapFilter, CompanyMapOut, CompanyMapSimpleOut
 from app.auth.auth_company import (
     get_current_active_company,
     get_current_active_admin_company,
@@ -17,7 +17,6 @@ from app.services.company_service import company_service
 router = APIRouter()
 
 
-# NOVOS ENDPOINTS PARA MAPA E TAGS
 @router.post("/map/filter", response_model=List[CompanyMapOut])
 async def get_companies_for_map(
     filter_data: CompanyMapFilter,
@@ -41,7 +40,7 @@ async def get_available_tags(
     """
     return await company_service.get_available_tags()
 
-@router.get("/map/coletoras", response_model=List[CompanyMapOut])
+@router.get("/map/coletoras", response_model=List[CompanyMapSimpleOut])
 async def get_coletoras_for_map(
     tags: List[str] = Query(None, description="Filter by tags"),
     city: str = Query(None, description="Filter by city"),
@@ -59,8 +58,7 @@ async def get_coletoras_for_map(
     )
     
     try:
-        companies = await company_service.get_companies_for_map(filter_data)
+        companies = await company_service.get_companies_for_map_simple(filter_data)  # ← Use o novo método
         return companies
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-

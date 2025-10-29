@@ -15,7 +15,6 @@ from .seeds import seed_admin
 from . models.rating import Rating
 from . models.discard import Discard
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup MongoDB
