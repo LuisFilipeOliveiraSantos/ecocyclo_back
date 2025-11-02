@@ -40,7 +40,7 @@ class CompanyService:
             company_description=company.company_description or "Sem descrição",  
             company_type=company.company_type,
             company_colector_tags=company.company_colector_tags,
-            atitude=company.latitude,          
+            latitude=company.latitude,          
             longitude=company.longitude, 
             rating_average=company.rating_average,
             total_ratings=company.total_ratings,
