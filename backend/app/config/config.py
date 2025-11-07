@@ -37,4 +37,7 @@ class Settings(BaseSettings):
     SSO_CALLBACK_HOSTNAME: str | None = None
     SSO_LOGIN_CALLBACK_URL: str | None = None
 
+    # Validação de CNPJ
+    VALIDATE_CNPJ_EXTERNAL: bool = False
+
 settings = Settings()  # type: ignore

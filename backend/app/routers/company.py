@@ -14,6 +14,8 @@ from app.auth.auth_company import (
 )
 from app.services.geocoding_service import geocoding_service
 from app.services.company_service import company_service
+from app.services.cnpj_validator import CNPJValidator
+from app.config.config import settings
 
 router = APIRouter()
 
@@ -34,6 +36,16 @@ async def register_company(company: CompanyCreate):
     
     if existing_company:
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
+    
+
+    if settings.VALIDATE_CNPJ_EXTERNAL:
+        cnpj_validator = CNPJValidator()
+        cnpj_validation = await cnpj_validator.validate(company.cnpj)  # ← Use a instância
+        if not cnpj_validation["valid"]:
+            raise HTTPException(
+                status_code=400, 
+                detail=cnpj_validation["error"]  # ← Mostra o erro específico
+            )
 
     hashed_password = get_hashed_password(company.password)
 
