@@ -20,8 +20,8 @@ async def lifespan(app: FastAPI):
     # Setup MongoDB
     app.state.client = AsyncIOMotorClient(
         settings.MONGO_HOST,
-        # tls=True,
-        # tlsCAFile=certifi.where()
+        tls=True,
+        tlsCAFile=certifi.where()
     )
     await init_beanie(
         database=app.state.client[settings.MONGO_DB], 
