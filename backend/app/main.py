@@ -11,7 +11,7 @@ from .config.config import settings
 from .models.users import User
 from .routers.api import api_router
 from .models.company import Company
-from .seeds import seed_admin
+from .seeds import admin_setup
 from . models.rating import Rating
 from . models.discard import Discard
 
@@ -28,17 +28,13 @@ async def lifespan(app: FastAPI):
         document_models=[User, Company, Discard, Rating]
         
     )
-    # Seed initial admin company
-    # await seed_admin.create_first_admin()
-
-    # user = await User.find_one({"email": settings.FIRST_SUPERUSER})
-    # if not user:
-    #     user = User(
-    #         email=settings.FIRST_SUPERUSER,
-    #         hashed_password=get_hashed_password(settings.FIRST_SUPERUSER_PASSWORD),
-    #         is_superuser=True,
-    #     )
-    #     await user.create()
+    admin_service = admin_setup.AdminSetupService()
+    await admin_service.create_admin_if_not_exists()
+    
+    yield
+    
+    print("🛑 Parando aplicação...")
+    app.state.client.close()
 
     yield
 
