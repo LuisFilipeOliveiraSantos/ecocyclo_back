@@ -36,14 +36,24 @@ class DiscardService:
     
     @staticmethod
     async def get_discards_by_company(empresa_id: str) -> list[Discard]:
-        empresa_object_id = PydanticObjectId(empresa_id)
+        """
+        Busca descartes onde a empresa é solicitante OU solicitada
+        """
+        try:
+            empresa_uuid = UUID(empresa_id)
+            
+            # Usando a sintaxe do MongoDB com $or
+            discards = await Discard.find({
+                "$or": [
+                    {"empresa_solicitante_id": empresa_uuid},
+                    {"empresa_solicitada_id": empresa_uuid}
+                ]
+            }).sort(-Discard.created_at).to_list()
+            
+            return discards
+        except ValueError as e:
+            raise ValueError(f"ID da empresa inválido: {empresa_id}")
         
-        discards = await Discard.find(
-            Discard.empresa_solicitante_id == empresa_object_id
-        ).to_list()
-        
-        return discards
-    
     @staticmethod
     async def cancel_discard(discard_id: UUID) -> Discard:
         discard = await Discard.find_one(Discard.discard_id == discard_id)
