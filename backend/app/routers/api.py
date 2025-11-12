@@ -8,6 +8,7 @@ from . import company_avaliations
 from . import map_filter_company
 from . import location 
 from . import discard_route
+from . import environmental_report
 
 
 api_router = APIRouter()
@@ -19,6 +20,7 @@ api_router.include_router(company_avaliations.router, prefix="/company/avaliatio
 api_router.include_router(map_filter_company.router, prefix="/company", tags=["Company map and filter"])
 api_router.include_router(location.router, prefix="/location", tags=["location"])
 api_router.include_router(discard_route.router, prefix="/discards", tags=["discards"])
+api_router.include_router(environmental_report.router, prefix="/api/v1/environmental-reports", tags=["environmental-reports"])
 
 @api_router.get("/")
 async def root():
