@@ -1,13 +1,13 @@
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict
-from app.models.environmental_report import (
+from ..models.environmental_report import (
     EnvironmentalReport, 
-    ElectronicItem, 
+    ElectronicItem,
     RiskLevel,
     ITEM_REFERENCE_DATA
 )
-from app.schemas.environmental_report_schema import EnvironmentalReportCreate
+from ..schemas.environmental_report_schema import EnvironmentalReportCreate,EnvironmentalReportUpdate
 
 
 class EnvironmentalReportService:
@@ -50,7 +50,7 @@ class EnvironmentalReportService:
         agua_total = 0.0
         energia_total = 0.0
         reaproveitamento_total = 0.0
-        
+
         for item_type, quantidade in itens_processados.items():
             if quantidade == 0:
                 continue
@@ -65,13 +65,13 @@ class EnvironmentalReportService:
             reaproveitamento_medio = (dados_item['reaproveitamento_min'] + dados_item['reaproveitamento_max']) / 2
             
             # Impacto ambiental
-            co2_item = dados_item['co2_por_item'] * quantidade
-            agua_item = dados_item['agua_por_item'] * quantidade
-            energia_item = dados_item['energia_por_item'] * quantidade
+            co2_item = dados_item['co2'] * quantidade
+            agua_item = dados_item['agua'] * quantidade
+            energia_item = dados_item['energia'] * quantidade
             
             detalhes_itens.append({
                 'tipo_item': item_type.value,
-                'nome': dados_item['nome'],
+                'nome': item_type.value,
                 'quantidade': quantidade,
                 'reaproveitamento_medio': reaproveitamento_medio,
                 'receita_estimada': receita_item,
@@ -79,7 +79,6 @@ class EnvironmentalReportService:
                 'co2_economizado': co2_item,
                 'agua_economizada': agua_item,
                 'energia_economizada': energia_item,
-                'peso_total_kg': dados_item['peso_medio_kg'] * quantidade
             })
             
             receita_total += receita_item
@@ -96,7 +95,6 @@ class EnvironmentalReportService:
     @staticmethod
     async def create_environmental_report(report_data: EnvironmentalReportCreate) -> EnvironmentalReport:
         """Cria um novo relatório ambiental"""
-        
         # Calcular todas as métricas
         total_itens, taxa_reaproveitamento, receita_total, detalhes_itens, co2_total, agua_total, energia_total = (
             EnvironmentalReportService._calcular_metricas(report_data.itens_processados)
@@ -119,6 +117,7 @@ class EnvironmentalReportService:
             agua_economizada_l=agua_total,
             energia_economizada_kwh=energia_total
         )
+        print(report)
         
         return await report.insert()
     
@@ -155,19 +154,24 @@ class EnvironmentalReportService:
         return reports
     
     @staticmethod
-    async def update_report(report_id: UUID, update_data: dict) -> EnvironmentalReport:
+    async def update_report(report_id: UUID, update_data: EnvironmentalReportUpdate) -> EnvironmentalReport:
         """Atualiza um relatório existente"""
         report = await EnvironmentalReportService.get_report_by_id(report_id)
-        
-        # Se itens_processados foram atualizados, recalcular métricas
-        if 'itens_processados' in update_data:
+
+
+        update_payload = update_data.model_dump(exclude_unset=True)
+
+        # 2. Verifique se 'itens_processados' está no payload que recebemos
+        if 'itens_processados' in update_payload:
+            # 3. Calcule as métricas com base nos dados do payload
             total_itens, taxa_reaproveitamento, receita_total, detalhes_itens, co2_total, agua_total, energia_total = (
-                EnvironmentalReportService._calcular_metricas(update_data['itens_processados'])
+                EnvironmentalReportService._calcular_metricas(update_payload['itens_processados'])
             )
-            
+
             risco_medio = EnvironmentalReportService._calcular_risco_medio(detalhes_itens)
-            
-            update_data.update({
+
+            # 4. Crie um dicionário APENAS com as métricas calculadas
+            metrics_data = {
                 'total_itens': total_itens,
                 'taxa_reaproveitamento_media': taxa_reaproveitamento,
                 'receita_total_estimada': receita_total,
@@ -176,12 +180,17 @@ class EnvironmentalReportService:
                 'co2_economizado_kg': co2_total,
                 'agua_economizada_l': agua_total,
                 'energia_economizada_kwh': energia_total,
-                'updated_at': datetime.utcnow()
-            })
-        
-        await report.update({"$set": update_data})
+            }
+
+
+            update_payload.update(metrics_data)
+
+        update_payload['updated_at'] = datetime.utcnow()
+
+        # 7. Envie o payload final e combinado para o banco
+        await report.update({"$set": update_payload})
+
         return await EnvironmentalReportService.get_report_by_id(report_id)
-    
     @staticmethod
     async def delete_report(report_id: UUID) -> bool:
         """Deleta um relatório"""

@@ -5,11 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dedee5d6-638e-480c-9ce4-576a1ca36b26" name="Changes" comment="merge main">
-      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/config/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/env" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/models/environmental_report.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/models/environmental_report.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/routers/environmental_report.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/routers/environmental_report.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/schemas/environmental_report_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/schemas/environmental_report_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/seeds/environmental_report_seed.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/seeds/environmental_report_seed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/services/environmental_report_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/services/environmental_report_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/WiredTiger.turtle" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/WiredTiger.turtle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/WiredTiger.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/WiredTiger.wt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/_mdb_catalog.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/_mdb_catalog.wt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/collection-2-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/collection-2-898483198194567605.wt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/collection-4-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/collection-4-898483198194567605.wt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/index-3-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/index-3-898483198194567605.wt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/index-5-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/index-5-898483198194567605.wt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/index-6-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/index-6-898483198194567605.wt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/journal/WiredTigerLog.0000000004" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/mongod.lock" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/mongod.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo_data/sizeStorer.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/sizeStorer.wt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,18 +39,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;agendamento-route&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/marle/OneDrive/Área de Trabalho/Estudos/ecocyclo_back/backend&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.environmental_report_seed.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/marle/OneDrive/Área de Trabalho/Estudos/ecocyclo_back/backend",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\marle\OneDrive\Área de Trabalho\Estudos\ecocyclo_back\backend" />
@@ -47,6 +60,35 @@
       <recent name="C:\Users\marle\OneDrive\Área de Trabalho\Estudos\ecocyclo_back" />
       <recent name="C:\Users\marle\OneDrive\Área de Trabalho\Estudos\ecocyclo_back\backend" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="environmental_report_seed" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ecocyclo_back" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend/app/seeds" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/backend/app/seeds/environmental_report_seed.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.environmental_report_seed" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -112,5 +154,23 @@
     <MESSAGE value="novo env" />
     <MESSAGE value="merge main" />
     <option name="LAST_COMMIT_MESSAGE" value="merge main" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/backend/app/routers/company.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>
