@@ -1,59 +1,21 @@
 from uuid import UUID
 from datetime import datetime
 from fastapi import APIRouter, HTTPException
-from app.models.environmental_report import EnvironmentalReport, ElectronicItem
+from ..models.environmental_report import EnvironmentalReport
+from ..models.item_reference import ItemReference  # ✅ NOVO IMPORT
+from ..schemas.environmental_report_schema import EnvironmentalReportCreate, EnvironmentalReportUpdate
+from ..services.environmental_report_service import EnvironmentalReportService
 
 router = APIRouter()
 
-# Dados de referência SIMPLES
-ITEM_DATA = {
-    "laptop": {"valor": 32.5, "co2": 15.0, "agua": 500.0, "energia": 120.0},
-    "celular": {"valor": 17.5, "co2": 8.0, "agua": 300.0, "energia": 80.0},
-    "tablet": {"valor": 22.5, "co2": 10.0, "agua": 400.0, "energia": 100.0},
-    "monitor": {"valor": 15.0, "co2": 12.0, "agua": 600.0, "energia": 150.0},
-    "teclado": {"valor": 2.0, "co2": 2.0, "agua": 100.0, "energia": 30.0},
-    "mouse": {"valor": 1.5, "co2": 1.5, "agua": 80.0, "energia": 25.0},
-    "headset": {"valor": 2.0, "co2": 2.5, "agua": 120.0, "energia": 35.0},
-    "cpu": {"valor": 55.0, "co2": 20.0, "agua": 800.0, "energia": 200.0},
-    "placa_mae": {"valor": 85.0, "co2": 25.0, "agua": 1000.0, "energia": 250.0},
-    "controle_remoto": {"valor": 3.0, "co2": 1.0, "agua": 60.0, "energia": 20.0},
-}
-
+# ❌ REMOVER a variável ITEM_DATA fixa - AGORA VEM DO BANCO
 
 @router.post("/")
-async def criar_relatorio(dados: dict):
-    """Cria relatório ambiental"""
+async def criar_relatorio(dados: EnvironmentalReportCreate):
+    """Cria relatório ambiental - AGORA USA DADOS DO BANCO"""
     try:
-        # Calcular totais
-        total_itens = sum(dados["itens_processados"].values())
-        receita_total = 0
-        co2_total = 0
-        agua_total = 0
-        energia_total = 0
-        
-        for item, quantidade in dados["itens_processados"].items():
-            if item in ITEM_DATA:
-                receita_total += ITEM_DATA[item]["valor"] * quantidade
-                co2_total += ITEM_DATA[item]["co2"] * quantidade
-                agua_total += ITEM_DATA[item]["agua"] * quantidade
-                energia_total += ITEM_DATA[item]["energia"] * quantidade
-        
-        # Criar relatório
-        relatorio = EnvironmentalReport(
-            empresa_id=dados["empresa_id"],
-            periodo_inicio=dados["periodo_inicio"],
-            periodo_fim=dados["periodo_fim"],
-            itens_processados=dados["itens_processados"],
-            total_itens=total_itens,
-            receita_total_estimada=receita_total,
-            co2_economizado_kg=co2_total,
-            agua_economizada_l=agua_total,
-            energia_economizada_kwh=energia_total
-        )
-        
-        await relatorio.insert()
-        return {"message": "Relatório criado!", "report_id": relatorio.report_id}
-        
+        relatorio = await EnvironmentalReportService.create_environmental_report(dados)
+        return {"message": "Relatório criado com dados do banco!", "report_id": relatorio.report_id}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro: {str(e)}")
 
@@ -83,8 +45,60 @@ async def buscar_relatorio(report_id: UUID):
 
 @router.get("/info/itens")
 async def itens_disponiveis():
-    """Mostra itens disponíveis e seus valores"""
+    """Mostra itens disponíveis - AGORA DO BANCO"""
+    # Busca itens ativos do banco
+    itens = await ItemReference.find(ItemReference.ativo == True).to_list()
+    
+    # Formata os dados igual ao formato anterior
+    itens_formatados = {}
+    for item in itens:
+        itens_formatados[item.nome] = {
+            "valor_min": item.valor_min,
+            "valor_max": item.valor_max,
+            "co2": item.co2,
+            "agua": item.agua,
+            "energia": item.energia,
+            "reaproveitamento_min": item.reaproveitamento_min,
+            "reaproveitamento_max": item.reaproveitamento_max,
+            "risco": item.risco.value  # Converte enum para string
+        }
+    
     return {
-        "itens_disponiveis": list(ITEM_DATA.keys()),
-        "valores_referencia": ITEM_DATA
+        "itens_disponiveis": list(itens_formatados.keys()),
+        "valores_referencia": itens_formatados,
+        "total_itens_cadastrados": len(itens),
+        "fonte": "banco_de_dados"  # ✅ Para confirmar que vem do banco
+    }
+
+
+@router.put('/{report_id}')
+async def atualizar_relatorio(report_id: UUID, dados_atualizados: EnvironmentalReportUpdate):
+    """Atualiza relatório - AGORA USA DADOS DO BANCO"""
+    try:
+        print(dados_atualizados)
+        relatorio_atualizado = await EnvironmentalReportService.update_report(report_id, dados_atualizados)
+        return relatorio_atualizado
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro na atualização do relatório: {str(e)}")
+
+
+@router.get("/debug/itens-banco")
+async def debug_itens_banco():
+    """Endpoint de debug - mostra itens direto do banco"""
+    itens = await ItemReference.find(ItemReference.ativo == True).to_list()
+    
+    resultado = []
+    for item in itens:
+        resultado.append({
+            "nome": item.nome,
+            "valor_medio": item.valor_medio,
+            "reaproveitamento_medio": item.reaproveitamento_medio,
+            "risco": item.risco.value,
+            "co2": item.co2,
+            "ativo": item.ativo
+        })
+    
+    return {
+        "total_itens": len(itens),
+        "itens": resultado
     }

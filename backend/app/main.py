@@ -14,6 +14,7 @@ from app.models.company import Company
 from app.models.rating import Rating
 from app.models.discard import Discard
 from app.models.environmental_report import EnvironmentalReport
+from app.models.item_reference import ItemReference
 
 # Routers
 from app.routers.api import api_router
@@ -39,7 +40,8 @@ async def lifespan(app: FastAPI):
             Company, 
             Discard, 
             Rating, 
-            EnvironmentalReport  # Adicionado aqui
+            EnvironmentalReport,
+            ItemReference  # Adicionado aqui
         ]
     )
     
