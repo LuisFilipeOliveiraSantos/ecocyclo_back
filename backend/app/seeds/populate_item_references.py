@@ -182,9 +182,10 @@ async def populate_initial_data():
     total_items = await ItemReference.find_all().count()
     print(f"📊 Total de itens no banco: {total_items}")
     
-    # Fecha a conexão
-    client.close()
-    print("🔌 Conexão com MongoDB fechada")
+    # ❌❌❌ REMOVIDO: Não fechar o client aqui!
+    # A main.py vai cuidar de fechar a conexão
+    # client.close()  # ← ESTA LINHA FOI REMOVIDA
+    # print("🔌 Conexão com MongoDB fechada")  # ← ESTA LINHA FOI REMOVIDA
 
 if __name__ == "__main__":
     asyncio.run(populate_initial_data())

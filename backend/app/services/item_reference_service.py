@@ -54,9 +54,15 @@ class ItemReferenceService:
     @staticmethod
     async def delete_item(item_id: UUID) -> bool:
         """Deleta um item (soft delete)"""
+        print(f"🔍 Tentando deletar item ID: {item_id}")  # DEBUG
+        
         item = await ItemReferenceService.get_item(item_id)
+        print(f"✅ Item encontrado: {item.nome}")  # DEBUG
+        
         item.ativo = False
         await item.save()
+        print(f"✅ Item desativado com sucesso")  # DEBUG
+        
         return True
     
     @staticmethod
