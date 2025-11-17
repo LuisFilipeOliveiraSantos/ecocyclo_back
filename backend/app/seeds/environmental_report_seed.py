@@ -1,8 +1,8 @@
 import asyncio
 from uuid import uuid4
-from datetime import datetime, timedelta
-from app.models.environmental_report import EnvironmentalReport, ElectronicItem
-from app.services.environmental_report_service import EnvironmentalReportService
+from datetime import datetime, timedelta, timezone
+from backend.app.models.environmental_report import EnvironmentalReport, ElectronicItem
+from backend.app.services.environmental_report_service import EnvironmentalReportService
 
 
 class EnvironmentalReportSeed:
@@ -15,8 +15,8 @@ class EnvironmentalReportSeed:
         sample_reports = [
             {
                 "empresa_id": uuid4(),
-                "periodo_inicio": datetime.utcnow() - timedelta(days=60),
-                "periodo_fim": datetime.utcnow() - timedelta(days=30),
+                "periodo_inicio": datetime.now(timezone.utc) - timedelta(days=60),
+                "periodo_fim":  datetime.now(timezone.utc) - timedelta(days=30),
                 "itens_processados": {
                     ElectronicItem.LAPTOP: 8,
                     ElectronicItem.CELULAR: 15,
@@ -26,8 +26,8 @@ class EnvironmentalReportSeed:
             },
             {
                 "empresa_id": uuid4(),
-                "periodo_inicio": datetime.utcnow() - timedelta(days=30),
-                "periodo_fim": datetime.utcnow(),
+                "periodo_inicio": datetime.now(timezone.utc) - timedelta(days=30),
+                "periodo_fim": datetime.now(timezone.utc),
                 "itens_processados": {
                     ElectronicItem.TECLADO: 12,
                     ElectronicItem.MOUSE: 10,
@@ -38,8 +38,8 @@ class EnvironmentalReportSeed:
             },
             {
                 "empresa_id": uuid4(), 
-                "periodo_inicio": datetime.utcnow() - timedelta(days=90),
-                "periodo_fim": datetime.utcnow() - timedelta(days=60),
+                "periodo_inicio": datetime.now(timezone.utc) - timedelta(days=90),
+                "periodo_fim": datetime.now(timezone.utc) - timedelta(days=60),
                 "itens_processados": {
                     ElectronicItem.LAPTOP: 3,
                     ElectronicItem.CELULAR: 8,
@@ -52,7 +52,7 @@ class EnvironmentalReportSeed:
         created_count = 0
         for report_data in sample_reports:
             try:
-                from app.schemas.environmental_report_schema import EnvironmentalReportCreate
+                from ..schemas.environmental_report_schema import EnvironmentalReportCreate
                 
                 report_create = EnvironmentalReportCreate(**report_data)
                 await EnvironmentalReportService.create_environmental_report(report_create)

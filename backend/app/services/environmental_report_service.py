@@ -1,5 +1,5 @@
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict
 from app.models.environmental_report import EnvironmentalReport
 from app.models.item_reference import ItemReference, RiskLevel  # ✅ NOVO IMPORT
@@ -103,6 +103,7 @@ class EnvironmentalReportService:
             agua_economizada_l=agua_total,
             energia_economizada_kwh=energia_total
         )
+        print(report)
         
         return await report.insert()
     
