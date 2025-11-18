@@ -47,8 +47,8 @@ async def lifespan(app: FastAPI):
     # Setup MongoDB
     app.state.client = AsyncIOMotorClient(
         settings.MONGO_HOST,
-        #tls=True,
-        #tlsCAFile=certifi.where()
+        tls=True,
+        tlsCAFile=certifi.where()
     )
     
     # Inicializar Beanie com todos os models
