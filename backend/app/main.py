@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
+from app.seeds.populate_item_references import populate_initial_data
 
 # Configurações
 from app.config.config import settings
@@ -33,8 +34,7 @@ async def run_item_references_seed_if_empty():
             print("🌱 Executando seed de itens de referência (primeira execução)...")
             
             # Chama a função do seed mas NÃO inicializa nova conexão
-            from app.seeds.populate_item_references import create_initial_items
-            await create_initial_items()
+            await populate_initial_data()
             
         else:
             print(f"✅ Tabela de itens já populada ({existing_items} itens encontrados)")
@@ -47,8 +47,8 @@ async def lifespan(app: FastAPI):
     # Setup MongoDB
     app.state.client = AsyncIOMotorClient(
         settings.MONGO_HOST,
-        tls=True,
-        tlsCAFile=certifi.where()
+        #tls=True,
+        #tlsCAFile=certifi.where()
     )
     
     # Inicializar Beanie com todos os models
