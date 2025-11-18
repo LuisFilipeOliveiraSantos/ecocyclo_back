@@ -9,12 +9,11 @@ class EnvironmentalReportCreate(BaseModel):
     empresa_id: UUID
     periodo_inicio: datetime
     periodo_fim: datetime
-    itens_processados: Dict[ElectronicItem, int]
+    itens_processados: Dict[str, int]
 
 
 class EnvironmentalReportUpdate(BaseModel):
-    itens_processados: Dict[ElectronicItem, int]
-
+    itens_processados: Optional[Dict[str, int]] = None 
     periodo_inicio: Optional[datetime] = None
     periodo_fim: Optional[datetime] = None
 

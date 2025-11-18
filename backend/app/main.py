@@ -14,6 +14,7 @@ from app.models.company import Company
 from app.models.rating import Rating
 from app.models.discard import Discard
 from app.models.environmental_report import EnvironmentalReport
+from app.models.item_reference import ItemReference
 
 # Routers
 from app.routers.api import api_router
@@ -21,6 +22,25 @@ from app.routers.api import api_router
 # Seeds e serviços
 from app.seeds import admin_setup
 from app.auth.auth import get_hashed_password
+
+async def run_item_references_seed_if_empty():
+    """Executa o seed de itens apenas se a tabela estiver vazia"""
+    try:
+        # Verifica se já existem itens
+        existing_items = await ItemReference.find_all().count()
+        
+        if existing_items == 0:
+            print("🌱 Executando seed de itens de referência (primeira execução)...")
+            
+            # Chama a função do seed mas NÃO inicializa nova conexão
+            from app.seeds.populate_item_references import create_initial_items
+            await create_initial_items()
+            
+        else:
+            print(f"✅ Tabela de itens já populada ({existing_items} itens encontrados)")
+            
+    except Exception as e:
+        print(f"⚠️ Erro ao executar seed de itens: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,13 +59,17 @@ async def lifespan(app: FastAPI):
             Company, 
             Discard, 
             Rating, 
-            EnvironmentalReport  # Adicionado aqui
+            EnvironmentalReport,
+            ItemReference
         ]
     )
     
     # Criar admin se não existir
     admin_service = admin_setup.AdminSetupService()
     await admin_service.create_admin_if_not_exists()
+    
+    # ✅ EXECUTAR SEED DE ITENS SE NECESSÁRIO (adicionado aqui)
+    await run_item_references_seed_if_empty()
     
     yield
     
@@ -78,5 +102,5 @@ if __name__ == "__main__":
     import os
     import uvicorn
 
-    port = int(os.environ.get("PORT", 8000))  # Render fornece a porta dinamicamente
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)

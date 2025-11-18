@@ -2,123 +2,20 @@ import datetime
 from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from ..models.environmental_report import EnvironmentalReport
-from ..schemas.environmental_report_schema import EnvironmentalReportCreate,EnvironmentalReportUpdate
+from ..models.item_reference import ItemReference  # ✅ NOVO IMPORT
+from ..schemas.environmental_report_schema import EnvironmentalReportCreate, EnvironmentalReportUpdate
 from ..services.environmental_report_service import EnvironmentalReportService
+
 router = APIRouter()
 
-# Dados de referência SIMPLES
-ITEM_DATA = {
-    "laptop": {
-        "valor_min": 25.0,
-        "valor_max": 40.0,
-        "co2": 15.0,
-        "agua": 500.0,
-        "energia": 120.0,
-        "reaproveitamento_min": 80,
-        "reaproveitamento_max": 90,
-        "risco": "alto"
-    },
-    "celular": {
-        "valor_min": 10.0,
-        "valor_max": 25.0,
-        "co2": 8.0,
-        "agua": 300.0,
-        "energia": 80.0,
-        "reaproveitamento_min": 80,
-        "reaproveitamento_max": 85,
-        "risco": "alto"
-    },
-    "tablet": {
-        "valor_min": 15.0,
-        "valor_max": 30.0,
-        "co2": 10.0,
-        "agua": 400.0,
-        "energia": 100.0,
-        "reaproveitamento_min": 75,
-        "reaproveitamento_max": 85,
-        "risco": "medio"
-    },
-    "monitor": {
-        "valor_min": 10.0,
-        "valor_max": 20.0,
-        "co2": 12.0,
-        "agua": 600.0,
-        "energia": 150.0,
-        "reaproveitamento_min": 70,
-        "reaproveitamento_max": 85,
-        "risco": "alto"
-    },
-    "teclado": {
-        "valor_min": 1.0,
-        "valor_max": 3.0,
-        "co2": 2.0,
-        "agua": 100.0,
-        "energia": 30.0,
-        "reaproveitamento_min": 80,
-        "reaproveitamento_max": 90,
-        "risco": "baixo"
-    },
-    "mouse": {
-        "valor_min": 1.0,
-        "valor_max": 2.0,
-        "co2": 1.5,
-        "agua": 80.0,
-        "energia": 25.0,
-        "reaproveitamento_min": 75,
-        "reaproveitamento_max": 85,
-        "risco": "baixo"
-    },
-    "headset": {
-        "valor_min": 1.0,
-        "valor_max": 3.0,
-        "co2": 2.5,
-        "agua": 120.0,
-        "energia": 35.0,
-        "reaproveitamento_min": 70,
-        "reaproveitamento_max": 80,
-        "risco": "baixo"
-    },
-    "cpu": {
-        "valor_min": 40.0,
-        "valor_max": 70.0,
-        "co2": 20.0,
-        "agua": 800.0,
-        "energia": 200.0,
-        "reaproveitamento_min": 85,
-        "reaproveitamento_max": 95,
-        "risco": "medio"
-    },
-    "placa_mae": {
-        "valor_min": 50.0,
-        "valor_max": 120.0,
-        "co2": 25.0,
-        "agua": 1000.0,
-        "energia": 250.0,
-        "reaproveitamento_min": 90,
-        "reaproveitamento_max": 95,
-        "risco": "alto"
-    },
-    "controle_remoto": {
-        "valor_min": 2.0,
-        "valor_max": 4.0,
-        "co2": 1.0,
-        "agua": 60.0,
-        "energia": 20.0,
-        "reaproveitamento_min": 70,
-        "reaproveitamento_max": 80,
-        "risco": "baixo"
-    }
-}
-
+# ❌ REMOVER a variável ITEM_DATA fixa - AGORA VEM DO BANCO
 
 @router.post("/")
 async def criar_relatorio(dados: EnvironmentalReportCreate):
-    """Cria relatório ambiental"""
+    """Cria relatório ambiental - AGORA USA DADOS DO BANCO"""
     try:
         relatorio = await EnvironmentalReportService.create_environmental_report(dados)
-
-        return {"message": "Relatório criado!", "report_id": relatorio.report_id}
-        
+        return {"message": "Relatório criado com dados do banco!", "report_id": relatorio.report_id}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro: {str(e)}")
 
@@ -148,19 +45,60 @@ async def buscar_relatorio(report_id: UUID):
 
 @router.get("/info/itens")
 async def itens_disponiveis():
-    """Mostra itens disponíveis e seus valores"""
+    """Mostra itens disponíveis - AGORA DO BANCO"""
+    # Busca itens ativos do banco
+    itens = await ItemReference.find(ItemReference.ativo == True).to_list()
+    
+    # Formata os dados igual ao formato anterior
+    itens_formatados = {}
+    for item in itens:
+        itens_formatados[item.nome] = {
+            "valor_min": item.valor_min,
+            "valor_max": item.valor_max,
+            "co2": item.co2,
+            "agua": item.agua,
+            "energia": item.energia,
+            "reaproveitamento_min": item.reaproveitamento_min,
+            "reaproveitamento_max": item.reaproveitamento_max,
+            "risco": item.risco.value  # Converte enum para string
+        }
+    
     return {
-        "itens_disponiveis": list(ITEM_DATA.keys()),
-        "valores_referencia": ITEM_DATA
+        "itens_disponiveis": list(itens_formatados.keys()),
+        "valores_referencia": itens_formatados,
+        "total_itens_cadastrados": len(itens),
+        "fonte": "banco_de_dados"  # ✅ Para confirmar que vem do banco
     }
 
+
 @router.put('/{report_id}')
-async def atualizar_relatorio(report_id: UUID,dados_atualizados: EnvironmentalReportUpdate):
-    """Buscar relatório"""
+async def atualizar_relatorio(report_id: UUID, dados_atualizados: EnvironmentalReportUpdate):
+    """Atualiza relatório - AGORA USA DADOS DO BANCO"""
     try:
-      print(dados_atualizados)
-      relatorio_atualizado =  await EnvironmentalReportService.update_report(report_id,dados_atualizados)
-      return relatorio_atualizado
+        print(dados_atualizados)
+        relatorio_atualizado = await EnvironmentalReportService.update_report(report_id, dados_atualizados)
+        return relatorio_atualizado
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro na atualização do relatório: {str(e)}")
 
+
+@router.get("/debug/itens-banco")
+async def debug_itens_banco():
+    """Endpoint de debug - mostra itens direto do banco"""
+    itens = await ItemReference.find(ItemReference.ativo == True).to_list()
+    
+    resultado = []
+    for item in itens:
+        resultado.append({
+            "nome": item.nome,
+            "valor_medio": item.valor_medio,
+            "reaproveitamento_medio": item.reaproveitamento_medio,
+            "risco": item.risco.value,
+            "co2": item.co2,
+            "ativo": item.ativo
+        })
+    
+    return {
+        "total_itens": len(itens),
+        "itens": resultado
+    }

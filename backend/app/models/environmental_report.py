@@ -3,6 +3,7 @@ from enum import Enum
 from datetime import datetime
 from beanie import Document
 from pydantic import Field
+from typing import List, Dict 
 
 ITEM_REFERENCE_DATA = {
     "laptop": {
@@ -137,6 +138,7 @@ class EnvironmentalReport(Document):
     receita_total_estimada: float = 0.0
     detalhes_itens: list[dict]
     risco_ambiental_medio: RiskLevel = RiskLevel.BAIXO
+    detalhes_itens: List[Dict] = Field(default_factory=list)
     co2_economizado_kg: float = 0.0
     agua_economizada_l: float = 0.0
     energia_economizada_kwh: float = 0.0
