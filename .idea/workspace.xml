@@ -4,25 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dedee5d6-638e-480c-9ce4-576a1ca36b26" name="Changes" comment="merge main">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/models/environmental_report.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/models/environmental_report.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/routers/environmental_report.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/routers/environmental_report.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/schemas/environmental_report_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/schemas/environmental_report_schema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/seeds/environmental_report_seed.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/seeds/environmental_report_seed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/services/environmental_report_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/services/environmental_report_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/WiredTiger.turtle" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/WiredTiger.turtle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/WiredTiger.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/WiredTiger.wt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/_mdb_catalog.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/_mdb_catalog.wt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/collection-2-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/collection-2-898483198194567605.wt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/collection-4-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/collection-4-898483198194567605.wt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/index-3-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/index-3-898483198194567605.wt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/index-5-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/index-5-898483198194567605.wt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/index-6-898483198194567605.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/index-6-898483198194567605.wt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/journal/WiredTigerLog.0000000004" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/mongod.lock" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/mongod.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mongo_data/sizeStorer.wt" beforeDir="false" afterPath="$PROJECT_DIR$/mongo_data/sizeStorer.wt" afterDir="false" />
-    </list>
+    <list default="true" id="dedee5d6-638e-480c-9ce4-576a1ca36b26" name="Changes" comment="add update_route" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,6 +13,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "marleypm16"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/LuisFilipeOliveiraSantos/ecocyclo_back.git",
+    "accountId": "d2879fbd-50bb-4f69-9996-48233405f43f"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -145,7 +139,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762560547925</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="add update_route">
+      <option name="closed" value="true" />
+      <created>1763044143917</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1763044143917</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -153,7 +155,8 @@
     <MESSAGE value="conflito de biblioteca" />
     <MESSAGE value="novo env" />
     <MESSAGE value="merge main" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge main" />
+    <MESSAGE value="add update_route" />
+    <option name="LAST_COMMIT_MESSAGE" value="add update_route" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
