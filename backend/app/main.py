@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
-from app.seeds.populate_item_references import populate_initial_data
 
 # Configurações
 from app.config.config import settings
