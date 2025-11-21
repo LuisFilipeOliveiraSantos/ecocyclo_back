@@ -8,9 +8,8 @@ from ..services.environmental_report_service import EnvironmentalReportService
 
 router = APIRouter()
 
-# ❌ REMOVER a variável ITEM_DATA fixa - AGORA VEM DO BANCO
 
-@router.post("/")
+@router.post("/criar-relatorio")
 async def criar_relatorio(dados: EnvironmentalReportCreate):
     """Cria relatório ambiental - AGORA USA DADOS DO BANCO"""
     try:
@@ -20,7 +19,7 @@ async def criar_relatorio(dados: EnvironmentalReportCreate):
         raise HTTPException(status_code=400, detail=f"Erro: {str(e)}")
 
 
-@router.get("/")
+@router.get("/listar-relatorios")
 async def listar_relatorios(empresa_id: UUID):
     """Lista relatórios de uma empresa"""
     relatorios = await EnvironmentalReport.find(
@@ -30,7 +29,7 @@ async def listar_relatorios(empresa_id: UUID):
     return relatorios
 
 
-@router.get("/{report_id}")
+@router.get("/{report_id}/relatorio")
 async def buscar_relatorio(report_id: UUID):
     """Busca relatório específico"""
     relatorio = await EnvironmentalReport.find_one(
@@ -71,7 +70,7 @@ async def itens_disponiveis():
     }
 
 
-@router.put('/{report_id}')
+@router.put('/{report_id}/editar')
 async def atualizar_relatorio(report_id: UUID, dados_atualizados: EnvironmentalReportUpdate):
     """Atualiza relatório - AGORA USA DADOS DO BANCO"""
     try:
