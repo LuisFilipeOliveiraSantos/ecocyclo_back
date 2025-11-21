@@ -24,24 +24,6 @@ from app.routers.api import api_router
 from app.seeds import admin_setup
 from app.auth.auth import get_hashed_password
 
-async def run_item_references_seed_if_empty():
-    """Executa o seed de itens apenas se a tabela estiver vazia"""
-    try:
-        # Verifica se já existem itens
-        existing_items = await ItemReference.find_all().count()
-        
-        if existing_items == 0:
-            print("🌱 Executando seed de itens de referência (primeira execução)...")
-            
-            # Chama a função do seed mas NÃO inicializa nova conexão
-            await populate_initial_data()
-            
-        else:
-            print(f"✅ Tabela de itens já populada ({existing_items} itens encontrados)")
-            
-    except Exception as e:
-        print(f"⚠️ Erro ao executar seed de itens: {e}")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup MongoDB
@@ -67,10 +49,7 @@ async def lifespan(app: FastAPI):
     # Criar admin se não existir
     admin_service = admin_setup.AdminSetupService()
     await admin_service.create_admin_if_not_exists()
-    
-    # ✅ EXECUTAR SEED DE ITENS SE NECESSÁRIO (adicionado aqui)
-    await run_item_references_seed_if_empty()
-    
+
     yield
     
     print("🛑 Parando aplicação...")
