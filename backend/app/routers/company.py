@@ -2,7 +2,7 @@ from typing import Any, List
 from uuid import UUID
 
 from beanie.exceptions import RevisionIdWasChanged
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo import errors
 
 from app import models
@@ -172,15 +172,28 @@ async def delete_me(current_company: models.Company = Depends(get_current_active
 
 
 @router.get("/id", response_model=CompanyMapOut)
-async def get_company(
-    company_id: UUID,
+async def get_company_by_any_id(
+    company_id: str = Query(..., description="Company ID (UUID or ObjectID)"),
     admin_company: models.Company = Depends(get_current_active_company),
 ):
-    company = await models.Company.find_one({"uuid": company_id})
-    if company is None:
-        raise HTTPException(status_code=404, detail="Company not found")
-    return company
+    from uuid import UUID
+    from bson import ObjectId
 
+    # Tenta UUID
+    try:
+        company = await models.Company.find_one({"uuid": UUID(company_id)})
+        if company:
+            return company
+    except:
+        pass
+    
+    # Tenta ObjectID
+    if ObjectId.is_valid(company_id):
+        company = await models.Company.find_one({"_id": ObjectId(company_id)})
+        if company:
+            return company
+
+    raise HTTPException(status_code=404, detail="Company not found")
 
 
 @router.get("/{company_id}", response_model=CompanyOut)
