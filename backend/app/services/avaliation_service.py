@@ -43,7 +43,7 @@ class AvaliationService:
                 score=avaliation_data['score'],
                 comment=avaliation_data.get('comment', ''),
                 discard_uuid=avaliation_data['discard_uuid'],  
-                company_uuid=avaliation_data['company_uuid'],  # UUID direto
+                company_uuid=avaliation_data['company_uuid'],  
                 company_avaliadora_uuid=avaliation_data['company_avaliadora_uuid']  
             )
             
@@ -162,3 +162,6 @@ class AvaliationService:
         )
 
 avaliation_service = AvaliationService()
+
+
+# Bob
