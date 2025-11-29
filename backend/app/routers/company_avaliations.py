@@ -23,18 +23,37 @@ async def create_avaliation(
     Create a new avaliation
     """
     try:
-        # A empresa autenticada deve ser a avaliadora
+        print(f"🔍 DEBUG - Iniciando criação de avaliação:")
+        print(f"   Current Company UUID: {current_company.uuid}")
+        print(f"   Company UUID (avaliada): {avaliation_data.company_uuid}")
+        print(f"   Discard UUID: {avaliation_data.discard_uuid}")
+        print(f"   Score: {avaliation_data.score}")
+        
         avaliation_dict = avaliation_data.model_dump()
         avaliation_dict['company_avaliadora_uuid'] = current_company.uuid
         
+        print(f"📤 Dados para service: {avaliation_dict}")
+        
+       
         rating = await avaliation_service.create_avaliation(avaliation_dict)
-        return rating
+        
+        print(f"✅ Avaliação criada com sucesso: {rating.uuid}")
+        
+       
+        return AvaliationOut.from_rating(rating)
+        
     except Exception as e:
+        print(f"❌ ERRO DETALHADO:")
+        print(f"   Tipo: {type(e).__name__}")
+        print(f"   Mensagem: {str(e)}")
+        import traceback
+        print(f"   Traceback: {traceback.format_exc()}")
+        
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
-
+    
 @router.get("/{rating_uuid}", response_model=AvaliationOut)
 async def get_avaliation(rating_uuid: UUID):
     """
@@ -46,23 +65,12 @@ async def get_avaliation(rating_uuid: UUID):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Avaliation not found"
         )
-    return rating
 
-@router.get("/company/{company_uuid}/summary", response_model=CompanyAvaliationsSummary)
-async def get_company_avaliations_summary(company_uuid: UUID):
-    """
-    Get summary of avaliations for a company
-    """
-    try:
-        summary = await avaliation_service.get_company_summary(company_uuid)
-        return summary
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+    return AvaliationOut.from_rating(rating)
 
-@router.get("/company/{company_uuid}/avaliations", response_model=List[AvaliationOut])
+
+
+@router.get("/company/{company_uuid}", response_model=List[AvaliationOut])
 async def get_company_avaliations(
     company_uuid: UUID,
     page: int = Query(1, ge=1),
@@ -73,7 +81,8 @@ async def get_company_avaliations(
     """
     try:
         ratings = await avaliation_service.get_company_avaliations(company_uuid, page, limit)
-        return ratings
+        
+        return [AvaliationOut.from_rating(rating) for rating in ratings]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -93,14 +102,15 @@ async def get_my_avaliations(
         ratings = await avaliation_service.get_avaliations_by_avaliadora(
             current_company.uuid, page, limit
         )
-        return ratings
+       
+        return [AvaliationOut.from_rating(rating) for rating in ratings]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
 
-@router.patch("/{rating_uuid}", response_model=AvaliationOut)  # ✅ MUDADO PARA PATCH
+@router.patch("/update", response_model=AvaliationOut)
 async def update_avaliation(
     rating_uuid: UUID,
     update_data: AvaliationUpdate,
@@ -108,11 +118,7 @@ async def update_avaliation(
 ):
     """
     Update an avaliation (only by the company that created it)
-    
-    Partial update - send only the fields you want to change.
-    Example: {"comment": "Novo comentário"} or {"score": 4}
     """
-    # Verificar se a avaliação pertence à empresa autenticada
     rating = await avaliation_service.get_avaliation_by_uuid(rating_uuid)
     if not rating:
         raise HTTPException(
@@ -120,13 +126,12 @@ async def update_avaliation(
             detail="Avaliation not found"
         )
     
-    if rating.company_avaliadora_uuid.uuid != current_company.uuid:
+    if rating.company_avaliadora_uuid != current_company.uuid:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to update this avaliation"
         )
     
-    # Usar exclude_unset=True para PATCH (só atualiza campos enviados)
     updated_rating = await avaliation_service.update_avaliation(
         rating_uuid, update_data.model_dump(exclude_unset=True)
     )
@@ -137,9 +142,10 @@ async def update_avaliation(
             detail="Avaliation not found"
         )
     
-    return updated_rating
+  
+    return AvaliationOut.from_rating(updated_rating)
 
-@router.delete("/{rating_uuid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_avaliation(
     rating_uuid: UUID,
     current_company: Company = Depends(get_current_company)
@@ -154,17 +160,17 @@ async def delete_avaliation(
             detail="Avaliation not found"
         )
     
-    if rating.company_avaliadora_uuid.uuid != current_company.uuid:
+    if rating.company_avaliadora_uuid != current_company.uuid:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to delete this avaliation"
         )
     
-    success = await avaliation_service.delete_avaliation(rating_uuid)
-    if not success:
+    deleted = await avaliation_service.delete_avaliation(rating_uuid)
+    if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Avaliation not found"
         )
     
-    return None
+    return
