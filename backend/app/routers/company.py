@@ -25,7 +25,11 @@ async def register_company(company: CompanyCreate):
     """
     Register a new company.
     """
-    # Verificar se já existe company com esse email ou CNPJ
+
+    company_type = company.company_type
+
+    tags = company.company_colector_tags
+
     existing_company = await models.Company.find_one({
         "$or": [
             {"email": company.email},
@@ -33,31 +37,30 @@ async def register_company(company: CompanyCreate):
             {"nome": company.nome}
         ]
     })
-    
+
     if existing_company:
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
-    
+
 
     if settings.VALIDATE_CNPJ_EXTERNAL:
         cnpj_validator = CNPJValidator()
-        cnpj_validation = await cnpj_validator.validate(company.cnpj)  # ← Use a instância
+        cnpj_validation = await cnpj_validator.validate(company.cnpj)
         if not cnpj_validation["valid"]:
-            raise HTTPException(
-                status_code=400, 
-                detail=cnpj_validation["error"]  # ← Mostra o erro específico
-            )
+            raise HTTPException(status_code=400, detail=cnpj_validation["error"])
+
 
     hashed_password = get_hashed_password(company.password)
 
+  
     new_company = models.Company(
         nome=company.nome,
         cnpj=company.cnpj,
         email=company.email,
         telefone=company.telefone,
         hashed_password=hashed_password,
-        company_type=company.company_type,
+        company_type=company_type,
         company_description=company.company_description,
-        company_colector_tags=company.company_colector_tags,
+        company_colector_tags=tags,
         company_photo_url=company.company_photo_url,
         cep=company.cep,
         rua=company.rua,
@@ -71,8 +74,7 @@ async def register_company(company: CompanyCreate):
 
     try:
         await new_company.create()
-        
-        # Obter coordenadas após criar a company
+
         address_data = {
             'rua': company.rua,
             'numero': company.numero,
@@ -80,12 +82,15 @@ async def register_company(company: CompanyCreate):
             'cidade': company.cidade,
             'uf': company.uf
         }
+
         coordinates = await geocoding_service.get_coordinates_from_address(address_data)
+
         if coordinates:
             new_company.latitude, new_company.longitude = coordinates
             await new_company.save()
-        
+
         return new_company
+
     except errors.DuplicateKeyError:
         raise HTTPException(status_code=400, detail="Company with that email or CNPJ already exists")
 
@@ -165,10 +170,16 @@ async def update_my_company(
 
 
 
-@router.delete("/me", response_model=CompanyOut)
+@router.delete("/me")
 async def delete_me(current_company: models.Company = Depends(get_current_active_company)):
-    await current_company.delete()
-    return current_company
+    if not current_company:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    try:
+        await current_company.delete()   
+        return {"message": "Company deleted successfully"}
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error deleting company")
 
 
 @router.get("/id", response_model=CompanyMapOut)

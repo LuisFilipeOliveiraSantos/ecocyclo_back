@@ -91,4 +91,6 @@ disable_error_code = ["import-untyped"]
 filterwarnings = [
     "ignore::UserWarning",
     'ignore::DeprecationWarning',
+    "ignore:password cannot be longer than 72 bytes:UserWarning",
+    "ignore:trapped error reading bcrypt version:UserWarning",
 ]
