@@ -9,33 +9,34 @@ router = APIRouter(prefix="/location", tags=["location"])
 
 @router.get("/estados", response_model=List[EstadoSchema])
 async def get_estados():
-    """
-    Retorna todos os estados do Brasil
-    """
     try:
         estados = await ibge_service.get_estados()
         if not estados:
             raise HTTPException(status_code=503, detail="Serviço de estados indisponível")
         return estados
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar estados: {str(e)}")
 
 @router.get("/estados/{uf}/cidades", response_model=List[CidadeSchema])
 async def get_cidades_por_estado(uf: str):
-    """
-    Retorna todas as cidades de um estado específico
-    """
+
     if len(uf) != 2:
         raise HTTPException(status_code=400, detail="UF deve ter 2 caracteres")
-    
+
     try:
         cidades = await ibge_service.get_cidades_por_estado(uf)
         if not cidades:
             raise HTTPException(status_code=404, detail=f"Nenhuma cidade encontrada para {uf}")
         return cidades
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar cidades: {str(e)}")
-
+    
 @router.get("/cep/{cep}", response_model=LocalizacaoResponse)
 async def get_endereco_por_cep(cep: str):
     """

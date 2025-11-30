@@ -42,13 +42,17 @@ async def test_token(current_company: models.Company = Depends(get_current_activ
     """
     return current_company
 
-@router.get("/refresh-token", response_model=Token)
-async def refresh_token(current_company: models.Company = Depends(get_current_company_from_cookie)):
-    """
-    Return a new token for current company
-    """
+@router.get("/refresh")
+async def refresh_token(current_company=None):
+    # se vier None, usa a dependência do FastAPI
+    if current_company is None:
+        from fastapi import Depends
+        current_company = await get_current_company_from_cookie()
+
     if not current_company.is_active:
         raise HTTPException(status_code=400, detail="Inactive company")
+
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token_company(current_company.uuid, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
+    token = create_access_token_company(current_company.uuid, expires_delta=access_token_expires)
+
+    return {"access_token": token, "token_type": "bearer"}
