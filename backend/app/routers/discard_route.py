@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 from uuid import UUID
 from typing import List
-from app.schemas.discard_schema import DiscardCreate, DiscardRequest, DiscardResponse
+from app.schemas.discard_schema import DiscardCreate, DiscardRequest, DiscardResponse, DiscardUpdate
 from app.services.discard_service import DiscardService
 
 
@@ -58,3 +58,28 @@ async def cancel_discard(discard_id: UUID):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
+
+@router.put("/update/{discard_id}", response_model=DiscardResponse)
+async def update_discard(discard_id: UUID, request: DiscardUpdate):
+    try:
+        update_data = DiscardCreate(
+            empresa_solicitada_id=str(request.empresa_solicitada_id), 
+            itens_descarte=request.gemini_itens,
+            quantidade_total=sum(request.gemini_itens.values()),
+            data_descarte=request.data_descarte,
+            local_coleta=request.local_coleta,
+            empresa_solicitante_id=str(request.empresa_solicitante_id) 
+        )
+
+        discard = await DiscardService.update_discard(
+            discard_id,
+            update_data,
+            new_status=request.status
+        )
+
+        return discard
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro ao atualizar descarte: {str(e)}")

@@ -2,6 +2,7 @@ from uuid import UUID
 from datetime import datetime
 from beanie import PydanticObjectId
 from pydantic import BaseModel
+from app.models.discard import DiscardStatus
 
 
 class DiscardCreate(BaseModel):
@@ -32,3 +33,11 @@ class DiscardResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class DiscardUpdate(BaseModel):
+    empresa_solicitante_id: str  
+    empresa_solicitada_id: str   
+    gemini_itens: dict
+    data_descarte: datetime | None = None
+    local_coleta: str | None = None
+    status: DiscardStatus
