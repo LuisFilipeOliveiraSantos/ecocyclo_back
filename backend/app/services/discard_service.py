@@ -49,34 +49,40 @@ class DiscardService:
         await discard.save()
         return discard
     
-    # ADICIONE ESTE MÉTODO AQUI ↓
+    
     @staticmethod
     async def update_discard(
         discard_id: UUID,
         update_data: DiscardCreate,
         new_status: DiscardStatus
     ) -> Discard:
-
+    
         discard = await Discard.find_one(Discard.discard_id == discard_id)
-
+    
         if not discard:
             raise ValueError("Descarte não encontrado")
-
-        # Regras de negócio
+    
+        
         if discard.status == DiscardStatus.COMPLETO and new_status != DiscardStatus.COMPLETO:
             raise ValueError("Não é permitido alterar um descarte já finalizado")
-
+    
         if discard.status == DiscardStatus.CANCELADO and new_status != DiscardStatus.CANCELADO:
             raise ValueError("Não é permitido reativar um descarte cancelado")
-
-        # Converta os IDs string para UUID antes de atribuir
+    
+       
         discard.empresa_solicitante_id = UUID(update_data.empresa_solicitante_id)
         discard.empresa_solicitada_id = UUID(update_data.empresa_solicitada_id)
-        discard.itens_descarte = update_data.itens_descarte
-        discard.quantidade_total = update_data.quantidade_total
+        
+       
+        if update_data.itens_descarte and len(update_data.itens_descarte) > 0:
+           
+            discard.itens_descarte = update_data.itens_descarte
+            discard.quantidade_total = update_data.quantidade_total
+      
+        
         discard.data_descarte = update_data.data_descarte
         discard.local_coleta = update_data.local_coleta
         discard.status = new_status
-
+    
         await discard.save()
         return discard
